@@ -13,7 +13,12 @@ Prototipo web del módulo de **solicitud y cotización del alquiler de un espaci
 
 ## Cómo probarlo
 
-No necesita instalación: abre `solicitar-fecha.html` en el navegador. Los datos se guardan en el `localStorage` del navegador y empiezan con ejemplos que siempre caen en los próximos días. Para volver a los datos de ejemplo, borra los datos del sitio en el navegador.
+Dos formas:
+
+- **Directo:** abre `solicitar-fecha.html` en el navegador (no necesita instalación).
+- **En un puerto:** `npm start` y abre http://localhost:4400 (cliente: `/solicitar-fecha.html`, administrador: `/panel-administracion.html`). Puedes cambiar el puerto con la variable `PORT`. El servidor no tiene dependencias y solo escucha en tu equipo.
+
+Los datos de un modo y del otro **no se comparten**: el navegador guarda cada dirección por separado. Los datos se guardan en el `localStorage` del navegador y empiezan con ejemplos que siempre caen en los próximos días. Para volver a los datos de ejemplo, borra los datos del sitio en el navegador.
 
 ## Pruebas automáticas
 
@@ -36,6 +41,7 @@ Las pruebas (carpeta `tests/`) abren los HTML directamente, sin servidor, y cubr
 - `solicitar-fecha.html` — pantalla del cliente
 - `panel-administracion.html` — panel del administrador
 - `alquiler-app.js` — lógica (disponibilidad, validaciones, cotización, PDF, calendario)
+- `selector-hora.js` — selector de hora (panel «Hora» con botón «Listo», como el del gestor de eventos); mejora las listas de hora sin cambiar la lógica
 - `estilos-alquiler.css` — estilos
 - `tests/` y `playwright.config.js` — pruebas automáticas
 

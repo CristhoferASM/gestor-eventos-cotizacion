@@ -1276,6 +1276,7 @@
         <p class="detail-label">Disponibilidad</p><p class="detail-value">${records.length ? `Hay ${records.length} evento(s) registrado(s).` : "Día libre; sin eventos registrados."}</p>
         ${records.map(item => `<button class="event-chip ${paymentClass[item.paymentStatus] || "unpaid"}" type="button" data-record-id="${escapeHTML(item.id)}" data-record-kind="${item.kind}" data-segment="${escapeHTML(item.segment)}">${escapeHTML(item.displayStart)}–${escapeHTML(item.displayEnd)} · ${escapeHTML(item.segment)} · ${escapeHTML(item.name)}</button>`).join("")}`;
       detail.querySelectorAll(".event-chip").forEach(button => button.addEventListener("click", () => showCalendarDetail(button.dataset.recordId, button.dataset.recordKind, button.dataset.segment)));
+      if (window.matchMedia("(max-width: 700px)").matches) detail.scrollIntoView({ behavior: "smooth", block: "nearest" });
     }
 
     function showCalendarDetail(id, kind, segment = "Evento") {
@@ -1306,6 +1307,11 @@
         ${linkedQuote ? `<button class="button small" type="button" data-open-quote="${escapeHTML(linkedQuote.id)}">Ver cotización</button>` : ""}`;
       const viewButton = detail.querySelector("[data-open-quote]");
       if (viewButton) viewButton.addEventListener("click", () => openQuoteModal(null, "view", viewButton.dataset.openQuote));
+    }
+
+    // Celda de tabla con su etiqueta: en pantallas chicas cada fila se muestra como una tarjeta «etiqueta: valor».
+    function cell(label, html, className = "") {
+      return `<td data-label="${escapeHTML(label)}"${className ? ` class="${className}"` : ""}><div class="cell-value">${html}</div></td>`;
     }
 
     // Estado visible de una solicitud: descartada, cotizada (si ya tiene cotización) o el estado guardado.
@@ -1342,17 +1348,21 @@
           item.setupDate ? `Montaje: ${formatShortDate(item.setupDate)} ${item.setupStart}–${item.setupEnd}` : "",
           item.teardownDate ? `Desmontaje: ${formatShortDate(item.teardownDate)} ${item.teardownStart}–${item.teardownEnd}` : ""
         ].filter(Boolean);
+        const acciones = item.status === "Descartada"
+          ? `<button class="button small secondary" type="button" data-reactivate-request="${escapeHTML(item.id)}">Reactivar</button>`
+          : quote
+            ? `<button class="button small" type="button" data-view-quote="${escapeHTML(quote.id)}">Ver cotización</button>`
+            : `<button class="button small" type="button" data-create-quote="${escapeHTML(item.id)}">Crear cotización</button><button class="button small secondary" type="button" data-discard-request="${escapeHTML(item.id)}">Descartar</button>`;
         return `<tr>
-          <td class="main-cell">${escapeHTML(item.name)}</td><td>${escapeHTML(item.dni || "—")}</td><td>${escapeHTML(item.email)}</td><td>${escapeHTML(item.phone)}</td>
-          <td>${escapeHTML(formatShortDate(item.date))}<span class="sub-cell">${escapeHTML(item.start)} a ${escapeHTML(item.end)}</span></td>
-          <td>${logistics.length ? logistics.map(line => `<span class="sub-cell">${escapeHTML(line)}</span>`).join("") : "—"}</td>
-          <td>${escapeHTML(item.notes || "—")}</td>
-          <td>${statusBadge(requestStatus(item, quote))}</td>
-          <td><div class="action-list">${item.status === "Descartada"
-            ? `<button class="button small secondary" type="button" data-reactivate-request="${escapeHTML(item.id)}">Reactivar</button>`
-            : quote
-              ? `<button class="button small" type="button" data-view-quote="${escapeHTML(quote.id)}">Ver cotización</button>`
-              : `<button class="button small" type="button" data-create-quote="${escapeHTML(item.id)}">Crear cotización</button><button class="button small secondary" type="button" data-discard-request="${escapeHTML(item.id)}">Descartar</button>`}</div></td>
+          ${cell("Nombre", escapeHTML(item.name), "main-cell")}
+          ${cell("DNI", escapeHTML(item.dni || "—"))}
+          ${cell("Correo", escapeHTML(item.email))}
+          ${cell("Teléfono", escapeHTML(item.phone))}
+          ${cell("Fecha y horario", `${escapeHTML(formatShortDate(item.date))}<span class="sub-cell">${escapeHTML(item.start)} a ${escapeHTML(item.end)}</span>`)}
+          ${cell("Ensayo y logística", logistics.length ? logistics.map(line => `<span class="sub-cell">${escapeHTML(line)}</span>`).join("") : "—")}
+          ${cell("Observación", escapeHTML(item.notes || "—"))}
+          ${cell("Estado", statusBadge(requestStatus(item, quote)))}
+          ${cell("", `<div class="action-list">${acciones}</div>`)}
         </tr>`;
       }).join("") || '<tr><td class="empty-row" colspan="9">No hay solicitudes que coincidan con la búsqueda.</td></tr>';
       document.querySelectorAll("[data-create-quote]").forEach(button => {
@@ -1390,13 +1400,15 @@
       document.getElementById("quote-count").textContent = `${quotes.length} ${quotes.length === 1 ? "cotización" : "cotizaciones"}`;
       document.getElementById("quote-foot").textContent = `Mostrando ${quotes.length} de ${data.quotes.length} cotizaciones.`;
       document.getElementById("quotes-body").innerHTML = quotes.map(item => `<tr>
-        <td class="main-cell">${escapeHTML(item.quoteCode || "—")}</td>
-        <td class="main-cell">${escapeHTML(item.client)}<span class="sub-cell">${escapeHTML(item.email)}</span></td>
-        <td>${escapeHTML(formatShortDate(item.date))}</td><td>${escapeHTML(item.start)} a ${escapeHTML(item.end)}</td><td>${money(item.amount)}</td>
-        <td>${escapeHTML(formatShortDate(item.createdAt))}</td>
-        <td>${statusBadge(item.status || "En proceso")}</td>
-        <td>${statusBadge(item.paymentStatus || "Sin pagos")}</td>
-        <td><button class="button small" type="button" data-view-quote="${escapeHTML(item.id)}">Ver PDF</button></td>
+        ${cell("Código", escapeHTML(item.quoteCode || "—"), "main-cell")}
+        ${cell("Cliente", `${escapeHTML(item.client)}<span class="sub-cell">${escapeHTML(item.email)}</span>`, "main-cell")}
+        ${cell("Fecha del evento", escapeHTML(formatShortDate(item.date)))}
+        ${cell("Horario", `${escapeHTML(item.start)} a ${escapeHTML(item.end)}`)}
+        ${cell("Monto", money(item.amount))}
+        ${cell("Creada", escapeHTML(formatShortDate(item.createdAt)))}
+        ${cell("Estado", statusBadge(item.status || "En proceso"))}
+        ${cell("Pago", statusBadge(item.paymentStatus || "Sin pagos"))}
+        ${cell("", `<button class="button small" type="button" data-view-quote="${escapeHTML(item.id)}">Ver PDF</button>`)}
       </tr>`).join("") || '<tr><td class="empty-row" colspan="9">No hay cotizaciones que coincidan con la búsqueda.</td></tr>';
       document.querySelectorAll("#quotes-body [data-view-quote]").forEach(button => button.addEventListener("click", () => openQuoteModal(null, "view", button.dataset.viewQuote)));
     }

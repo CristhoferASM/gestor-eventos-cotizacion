@@ -4,6 +4,7 @@
   "private": true,
   "description": "Prototipo web de solicitud y cotización del alquiler de un espacio para eventos (SHOWTECH SOLUTIONS).",
   "scripts": {
+    "start": "node servidor.js",
     "test": "playwright test"
   },
   "devDependencies": {

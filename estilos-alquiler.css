@@ -281,7 +281,7 @@ h1 { margin-bottom: 4px; color: var(--navy); font-size: 22px; font-weight: 700; 
 .status.progress { background: #eef0f3; color: #5e6876; }
 .status.waiting { background: var(--amber-pale); color: var(--amber); }
 .notice-tag { display: block; width: fit-content; margin-top: 5px; background: var(--red-pale); color: var(--red); }
-.action-list { display: flex; flex-wrap: wrap; gap: 5px; max-width: 180px; }
+.action-list { display: flex; flex-wrap: nowrap; align-items: center; gap: 6px; }
 .action-link { color: var(--blue-dark); font-size: 10px; text-decoration: underline; text-underline-offset: 2px; }
 .table-foot { padding: 12px 22px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; }
 .table-panel { display: none; }
@@ -616,3 +616,82 @@ h1 { margin-bottom: 4px; color: var(--navy); font-size: 22px; font-weight: 700; 
   .client-addon-row small { margin-left: 1px; font-size: 9px; }
   .client-addon-controls { grid-template-columns: minmax(0, 1fr) 45px; }
 }
+
+
+/* ===== Móvil: tablas como tarjetas, calendario compacto y servicios adicionales apilados ===== */
+.required-note { white-space: nowrap; }
+.cell-value { min-width: 0; }
+@media (max-width: 700px) {
+  .table-top { padding: 16px 14px 10px; }
+  .table-foot { padding: 12px 14px; }
+  .data-table, .data-table tbody, .data-table tr, .data-table td { display: block; width: 100%; }
+  .data-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+  .data-table tbody { padding: 0 12px 4px; }
+  .data-table tbody tr { margin-bottom: 12px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+  .data-table td { display: grid; grid-template-columns: 38% minmax(0, 1fr); gap: 10px; padding: 6px 0; border-bottom: 1px solid #f0f3f6; line-height: 1.4; }
+  .data-table td:last-child { border-bottom: 0; }
+  .data-table td::before { content: attr(data-label); color: var(--muted); font-size: 10px; font-weight: 650; }
+  .data-table td[data-label=""] { display: block; padding-top: 10px; }
+  .data-table td[data-label=""]::before, .data-table td:not([data-label])::before { display: none; }
+  .data-table td.empty-row { display: block; text-align: center; }
+  .data-table .action-list { flex-wrap: wrap; }
+  .data-table .action-list .button { flex: 1 1 130px; }
+  .data-table td[data-label=""] .button { width: 100%; }
+
+  /* Calendario mensual: cada evento es una barrita de color; al tocar el día se ve el detalle debajo. */
+  .month-table { border-spacing: 3px; }
+  .month-table td { height: 56px; padding: 4px; }
+  .month-table .event-chip { height: 5px; padding: 0; margin-top: 3px; border-radius: 3px; font-size: 0; line-height: 0; overflow: hidden; color: transparent; }
+  .month-table .sub-cell { font-size: 9px; }
+  .week-view { grid-template-columns: 1fr; min-width: 0; }
+  .week-day { min-height: 0; }
+}
+@media (max-width: 560px) {
+  .client-addon-row { grid-template-columns: 1fr; gap: 8px; padding: 8px; }
+  .client-addon-row small { white-space: normal; }
+  .client-addon-controls { grid-template-columns: minmax(0, 1fr) 64px; }
+  .client-addon-row:not(.client-addon-microphones) > .client-addon-times { grid-column: 1; }
+  .quote-addon-row { grid-template-columns: 1fr; gap: 8px; }
+}
+@media (max-width: 440px) {
+  .header-right { flex-direction: row; align-items: center; justify-content: space-between; }
+}
+
+
+/* ===== Selector de hora (mismo estilo que el del gestor de eventos: panel «Hora» y botón «Listo») ===== */
+.hora-envoltura { position: relative; display: block; min-width: 0; }
+.hora-oculto { position: absolute !important; left: 0; bottom: 0; width: 1px !important; height: 1px !important; min-height: 0 !important; padding: 0 !important; margin: 0 !important; border: 0 !important; opacity: 0; overflow: hidden; pointer-events: none; }
+.hora-trigger {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  width: 100%; min-height: 40px; padding: 9px 11px;
+  border: 1px solid var(--line); border-radius: 6px; background: var(--surface);
+  color: var(--ink); font: inherit; font-size: 13px; text-align: left; cursor: pointer;
+}
+.hora-trigger, .hora-opcion, .btn-hora-listo { -webkit-tap-highlight-color: transparent; }
+.hora-trigger .hora-valor { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hora-trigger.vacio .hora-valor { color: #7a8494; }
+.hora-trigger .hora-icono { flex: none; color: var(--blue); }
+.hora-trigger:hover:not(:disabled) { border-color: var(--blue); }
+.hora-trigger:focus-visible, .hora-trigger[aria-expanded="true"] { border-color: var(--blue); outline: none; box-shadow: 0 0 0 3px rgba(73, 107, 145, .18); }
+.hora-trigger:disabled { background: #f2f4f7; color: var(--muted); cursor: not-allowed; }
+.hora-trigger:disabled .hora-icono { color: #a3adba; }
+.client-addon-times .hora-trigger, .client-addon-row .hora-trigger, .quote-addon-times .hora-trigger, .quote-addon-row .hora-trigger { min-height: 32px; padding: 5px 7px; font-size: 11px; }
+.logistics-details .hora-trigger { min-height: 36px; padding: 7px 8px; font-size: 12px; }
+
+.hora-panel {
+  position: fixed; z-index: 99999; width: 292px; max-width: calc(100vw - 20px); padding: 12px 14px;
+  background: var(--blanco); border: 1px solid var(--borde); border-radius: 8px; box-shadow: 0 8px 24px rgba(19, 38, 74, .14);
+}
+.hora-panel[hidden] { display: none; }
+.hora-panel-titulo { margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #eef1fb; color: #64748b; font-size: 11.5px; font-weight: bold; letter-spacing: .5px; text-align: center; text-transform: uppercase; }
+.hora-panel-rejilla { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+.hora-opcion { min-height: 38px; padding: 0; border: 1.5px solid #d9deea; border-radius: 6px; background: #fff; color: var(--primario); font: inherit; font-size: 14px; font-weight: bold; cursor: pointer; }
+.hora-opcion:hover:not(:disabled) { background: #eef1fb; border-color: var(--primario-2); }
+.hora-opcion.elegida, .hora-opcion.elegida:hover:not(:disabled) { background: var(--primario-2); border-color: var(--primario-2); color: #fff; }
+.hora-opcion:focus-visible { outline: 2px solid var(--primario-2); outline-offset: 2px; }
+.hora-opcion:disabled { background: #f2f4f7; border-color: #e5e9ef; color: #8b95a3; text-decoration: line-through; cursor: not-allowed; }
+.hora-vacio { grid-column: 1 / -1; margin: 6px 0; color: #64748b; font-size: 12px; line-height: 1.4; text-align: center; }
+.hora-panel-pie { margin-top: 10px; padding-top: 8px; border-top: 1px solid #eef1fb; }
+.btn-hora-listo { width: 100%; padding: 8px 14px; border: none; border-radius: 6px; background: var(--primario-2); color: #fff; font: inherit; font-size: 13px; font-weight: bold; cursor: pointer; transition: background-color .15s ease; }
+.btn-hora-listo:hover { background: var(--primario); }
+.btn-hora-listo:focus-visible { outline: 2px solid var(--primario); outline-offset: 2px; }

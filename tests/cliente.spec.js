@@ -60,6 +60,15 @@ test.describe('Pantalla del cliente', () => {
     await expect(page.locator('#summary-addons-total')).toContainText('230.00');
   });
 
+  test('el acceso al panel dice lo que es (no hay login) y el panel permite volver al formulario', async ({ page }) => {
+    await page.goto(CLIENTE);
+    await expect(page.getByRole('link', { name: 'Login' })).toHaveCount(0);
+    await page.getByRole('link', { name: 'Panel del administrador' }).click();
+    await expect(page).toHaveURL(/panel-administracion\.html$/);
+    await page.getByRole('link', { name: 'Solicitud de horarios' }).click();
+    await expect(page).toHaveURL(/solicitar-fecha\.html$/);
+  });
+
   test('un horario ocupado no se puede elegir de nuevo', async ({ page }) => {
     await enviarSolicitud(page, { nombre: 'Primera Reserva', inicio: '09:00', fin: '13:00' });
     await page.goto(CLIENTE);
