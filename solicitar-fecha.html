@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Solicita tu fecha | Alquiler de espacios</title>
+  <link rel="stylesheet" href="estilos-alquiler.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="marca" href="solicitar-fecha.html">SHOWTECH <span>SOLUTIONS</span></a>
+    <div class="header-right">
+      <nav class="site-nav" aria-label="Navegación principal">
+        <a href="solicitar-fecha.html" aria-current="page">Solicitud de horarios</a>
+      </nav>
+      <a class="button login-button" href="panel-administracion.html">Login</a>
+    </div>
+  </header>
+
+  <main class="page booking-page">
+    <div class="page-heading">
+      <p class="eyebrow">Disponibilidad y cotización</p>
+      <h1>Solicita tu fecha</h1>
+      <p>Cuéntanos cuándo te gustaría realizar tu evento. Revisaremos la disponibilidad y te enviaremos una cotización.</p>
+    </div>
+
+    <form class="booking-layout" id="request-form">
+      <section class="card" aria-labelledby="schedule-title">
+        <div class="card-heading">
+          <div>
+            <h2 id="schedule-title">Horario</h2>
+            <p>Selecciona un día disponible para consultar sus horarios.</p>
+          </div>
+          <span class="required-note"><span class="required">*</span> Obligatorio</span>
+        </div>
+
+        <div class="calendar-title">
+          <h3 id="client-month-title">Octubre 2026</h3>
+          <div class="calendar-nav" aria-label="Cambiar de mes">
+            <button type="button" id="client-prev-month">Anterior</button>
+            <button type="button" id="client-next-month">Siguiente</button>
+          </div>
+        </div>
+        <div class="calendar-grid" id="client-calendar" role="grid" aria-label="Calendario de disponibilidad"></div>
+        <div class="calendar-key" aria-label="Disponibilidad">
+          <span class="key-item"><span class="key-swatch free"></span>Libre todo el día</span>
+          <span class="key-item"><span class="key-swatch partial"></span>Horario parcialmente ocupado</span>
+          <span class="key-item"><span class="key-swatch full"></span>Sin disponibilidad</span>
+        </div>
+
+        <div class="availability">
+          <h3 id="availability-title">Selecciona una fecha para ver los horarios disponibles</h3>
+          <p id="availability-description">Elige un día disponible del calendario para continuar.</p>
+          <div id="occupied-hours" class="occupied-hours" hidden></div>
+          <div class="slot-fields" id="slot-fields" hidden>
+            <div class="field">
+              <label for="start-time">Elige la hora de inicio <span class="required">*</span></label>
+              <select id="start-time" required disabled><option value="">Selecciona una hora</option></select>
+            </div>
+            <div class="field">
+              <label for="end-time">Elige la hora de fin <span class="required">*</span></label>
+              <select id="end-time" required disabled><option value="">Selecciona una hora</option></select>
+            </div>
+          </div>
+          <p class="form-error" id="availability-error" role="status" aria-live="polite"></p>
+        </div>
+      </section>
+
+      <section class="card" aria-labelledby="contact-title">
+        <div class="card-heading">
+          <div>
+            <h2 id="contact-title">Tus datos</h2>
+            <p>Déjanos tus datos para preparar una propuesta.</p>
+          </div>
+          <span class="required-note"><span class="required">*</span> Obligatorio</span>
+        </div>
+
+        <div class="form-fields">
+          <div class="field">
+            <label for="full-name">Nombre completo <span class="required">*</span></label>
+            <input id="full-name" name="nombre" type="text" placeholder="Ej. Mariana Salazar" required>
+          </div>
+          <div class="field">
+            <label for="email">Correo electrónico <span class="required">*</span></label>
+            <input id="email" name="correo" type="email" placeholder="Ej. mariana@correo.com" required>
+          </div>
+          <div class="field">
+            <label for="phone">Teléfono <span class="required">*</span></label>
+            <input id="phone" name="telefono" type="tel" placeholder="Ej. 987 654 321" required>
+          </div>
+          <div class="field">
+            <label for="dni">DNI peruano <span class="required">*</span></label>
+            <input id="dni" name="dni" type="text" inputmode="numeric" autocomplete="off" placeholder="8 dígitos" pattern="[0-9]{8}" minlength="8" maxlength="8" title="Ingresa los 8 dígitos de tu DNI peruano." required>
+          </div>
+        </div>
+
+        <div class="summary-box" aria-live="polite">
+          <h3>Resumen de tu solicitud</h3>
+          <div class="summary-row"><span>Fecha seleccionada:</span><strong id="summary-date">Aún no seleccionada</strong></div>
+          <div class="summary-row"><span>Horario:</span><strong id="summary-time">Aún no seleccionado</strong></div>
+          <div class="summary-row"><span>Extras seleccionados:</span><strong id="summary-addons">Ninguno</strong></div>
+          <div class="summary-row"><span>Subtotal de extras:</span><strong id="summary-addons-total">S/ 0.00</strong></div>
+        </div>
+
+        <fieldset class="client-addons">
+          <legend>Servicios adicionales opcionales</legend>
+          <p class="help-text">Elige lo que necesitas. Puedes seleccionar menos horas que las del evento; los extras se incluyen en tu cotización.</p>
+          <div class="client-addon-list">
+            <div class="client-addon-row">
+              <label class="checkbox-row" for="request-addon-parking"><input id="request-addon-parking" type="checkbox"><span>Cochera <small>S/ 10 por auto/h · máx. 30</small></span></label>
+              <div class="client-addon-controls">
+                <div class="client-addon-times"><select id="request-addon-parking-start" aria-label="Desde qué hora cochera" disabled></select><select id="request-addon-parking-end" aria-label="Hasta qué hora cochera" disabled></select></div>
+                <input id="request-addon-parking-quantity" type="number" min="1" max="30" step="1" value="1" aria-label="Cantidad de autos" disabled>
+              </div>
+            </div>
+            <div class="client-addon-row">
+              <label class="checkbox-row" for="request-addon-led-54"><input id="request-addon-led-54" type="checkbox"><span>Pantalla LED 5×4 <small>S/ 200/h</small></span></label>
+              <div class="client-addon-times"><select id="request-addon-led-54-start" aria-label="Desde qué hora pantalla LED 5 por 4" disabled></select><select id="request-addon-led-54-end" aria-label="Hasta qué hora pantalla LED 5 por 4" disabled></select></div>
+            </div>
+            <div class="client-addon-row">
+              <label class="checkbox-row" for="request-addon-led-43"><input id="request-addon-led-43" type="checkbox"><span>Pantalla LED 4×3 <small>S/ 150/h</small></span></label>
+              <div class="client-addon-times"><select id="request-addon-led-43-start" aria-label="Desde qué hora pantalla LED 4 por 3" disabled></select><select id="request-addon-led-43-end" aria-label="Hasta qué hora pantalla LED 4 por 3" disabled></select></div>
+            </div>
+            <div class="client-addon-row client-addon-microphones">
+              <label class="checkbox-row" for="request-addon-microphones"><input id="request-addon-microphones" type="checkbox"><span>Micrófonos <small>S/ 5/unidad/h</small></span></label>
+              <div class="client-addon-controls">
+                <div class="client-addon-times"><select id="request-addon-microphones-start" aria-label="Desde qué hora micrófonos" disabled></select><select id="request-addon-microphones-end" aria-label="Hasta qué hora micrófonos" disabled></select></div>
+                <input id="request-addon-microphones-quantity" type="number" min="1" step="1" value="1" aria-label="Cantidad de micrófonos" disabled>
+              </div>
+            </div>
+            <div class="client-addon-row">
+              <label class="checkbox-row" for="request-addon-teleprompter"><input id="request-addon-teleprompter" type="checkbox"><span>Teleprompter <small>S/ 10/h</small></span></label>
+              <div class="client-addon-times"><select id="request-addon-teleprompter-start" aria-label="Desde qué hora teleprompter" disabled></select><select id="request-addon-teleprompter-end" aria-label="Hasta qué hora teleprompter" disabled></select></div>
+            </div>
+          </div>
+        </fieldset>
+
+        <section class="logistics-fields" aria-label="Logística del evento">
+          <h3>Logística y horarios adicionales</h3>
+          <p class="help-text">Estos datos ayudan a preparar una cotización precisa. Son opcionales.</p>
+          <div class="logistics-group">
+            <label class="checkbox-row" for="rehearsal">
+              <input id="rehearsal" name="ensayo" type="checkbox">
+              <span>Programar ensayo</span>
+            </label>
+            <div class="form-fields logistics-details" id="rehearsal-fields" hidden>
+              <div class="field"><label for="rehearsal-date">Fecha</label><input id="rehearsal-date" type="date"></div>
+              <div class="slot-fields">
+                <div class="field"><label for="rehearsal-start">Desde</label><select id="rehearsal-start"></select></div>
+                <div class="field"><label for="rehearsal-end">Hasta</label><select id="rehearsal-end"></select></div>
+              </div>
+            </div>
+          </div>
+          <div class="logistics-group">
+            <label class="checkbox-row" for="needs-setup">
+              <input id="needs-setup" name="needs-setup" type="checkbox">
+              <span>Necesito montaje</span>
+            </label>
+            <div class="form-fields logistics-details" id="setup-fields" hidden>
+              <div class="field"><label for="setup-date">Fecha</label><input id="setup-date" type="date"></div>
+              <div class="slot-fields">
+                <div class="field"><label for="setup-start">Desde</label><select id="setup-start"></select></div>
+                <div class="field"><label for="setup-end">Hasta</label><select id="setup-end"></select></div>
+              </div>
+              <p class="help-text">Puedes programarlo desde un día antes y debe terminar antes del evento.</p>
+            </div>
+          </div>
+          <div class="logistics-group">
+            <label class="checkbox-row" for="needs-teardown">
+              <input id="needs-teardown" name="needs-teardown" type="checkbox">
+              <span>Necesito desmontaje</span>
+            </label>
+            <div class="form-fields logistics-details" id="teardown-fields" hidden>
+              <div class="field"><label for="teardown-date">Fecha</label><input id="teardown-date" type="date"></div>
+              <div class="slot-fields">
+                <div class="field"><label for="teardown-start">Desde</label><select id="teardown-start"></select></div>
+                <div class="field"><label for="teardown-end">Hasta</label><select id="teardown-end"></select></div>
+              </div>
+              <p class="help-text">El desmontaje debe finalizar dentro de las 24 horas posteriores al evento.</p>
+            </div>
+          </div>
+        </section>
+
+        <div class="field" style="margin-top: 16px">
+          <label for="comments">Observaciones o comentarios adicionales <span class="required-note">(opcional)</span></label>
+          <textarea id="comments" name="observaciones" placeholder="Cuéntanos si tienes algún requerimiento especial."></textarea>
+        </div>
+        <button class="button form-submit" id="submit-request" type="submit" disabled>Solicitar cotización</button>
+        <p class="form-footnote" id="form-message" role="status" aria-live="polite">Completa fecha, horario, nombre, correo y teléfono para habilitar el envío.</p>
+      </section>
+    </form>
+  </main>
+  <dialog class="request-success-dialog" id="request-success-dialog" aria-labelledby="request-success-title">
+    <div class="request-success-content">
+      <div class="request-success-icon" aria-hidden="true">✓</div>
+      <p class="eyebrow">Solicitud enviada</p>
+      <h2 id="request-success-title">¡Tu solicitud de cotización se ha generado!</h2>
+      <p>El administrador se pondrá en contacto contigo para preparar tu cotización.</p>
+      <button class="button" id="close-request-success" type="button">Entendido</button>
+    </div>
+  </dialog>
+  <footer class="site-footer"><span>SHOWTECH SOLUTIONS</span><span>Gestión de espacios para eventos</span></footer>
+  <script src="alquiler-app.js"></script>
+</body>
+</html>

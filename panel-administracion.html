@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Panel de administración | Alquiler de espacios</title>
+  <link rel="stylesheet" href="estilos-alquiler.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="marca" href="solicitar-fecha.html">SHOWTECH <span>SOLUTIONS</span></a>
+    <div class="header-right">
+      <span class="usuario">Administrador</span>
+    </div>
+  </header>
+
+  <main class="page admin-page">
+    <div class="page-heading">
+      <p class="eyebrow">Gestión de reservas</p>
+      <h1>Panel de administración</h1>
+      <p>Revisa las solicitudes recibidas, consulta la disponibilidad y gestiona las cotizaciones.</p>
+    </div>
+
+    <div class="admin-controls">
+      <div class="segmented" role="tablist" aria-label="Tipo de registros">
+        <input type="radio" id="tab-requests" name="record-view" checked>
+        <label for="tab-requests" role="tab">Solicitudes</label>
+        <input type="radio" id="tab-quotes" name="record-view">
+        <label for="tab-quotes" role="tab">Cotizaciones</label>
+      </div>
+      <label class="switch-control" for="calendar-toggle">
+        <span>Ver calendario</span>
+        <input type="checkbox" id="calendar-toggle">
+        <span class="switch-track" aria-hidden="true"></span>
+      </label>
+
+      <section class="calendar-panel card" aria-label="Calendario de disponibilidad">
+        <div class="card-heading">
+          <div>
+            <h2>Disponibilidad de espacios</h2>
+            <p>Franjas por hora y estado de pago de cada evento.</p>
+          </div>
+          <div class="calendar-nav">
+            <button type="button" class="calendar-view active" data-calendar-view="month">Mes</button>
+            <button type="button" class="calendar-view" data-calendar-view="week">Semana</button>
+          </div>
+        </div>
+        <div class="admin-calendar">
+          <div>
+            <div class="calendar-title">
+              <h3 id="admin-month-title">Octubre 2026</h3>
+              <div class="calendar-nav">
+                <button type="button" id="admin-prev-month">Anterior</button>
+                <button type="button" id="admin-next-month">Siguiente</button>
+              </div>
+            </div>
+            <div class="table-scroll" id="admin-calendar-view"></div>
+            <div class="legend">
+              <span class="key-item"><span class="key-swatch paid"></span>Pago cancelado</span>
+              <span class="key-item"><span class="key-swatch partial"></span>Pago incompleto</span>
+              <span class="key-item"><span class="key-swatch unpaid"></span>Sin pagos</span>
+            </div>
+          </div>
+          <aside class="calendar-detail" id="calendar-detail">
+            <h3>Detalle de reserva</h3>
+            <p class="detail-label">Selecciona un evento del calendario</p>
+            <p class="detail-value">Aquí aparecerán el cliente, la fecha y los detalles de la solicitud o reserva.</p>
+            <div id="calendar-detail-content"></div>
+          </aside>
+        </div>
+      </section>
+    </div>
+
+    <section class="table-card card">
+      <div class="table-panel requests-panel">
+        <div class="table-top">
+          <div class="card-heading">
+            <div><h2>Solicitudes recibidas</h2><p>Consultas enviadas desde el formulario de solicitud de horario.</p></div>
+            <span class="required-note" id="request-count"></span>
+          </div>
+          <div class="toolbar">
+            <input type="search" id="request-search" placeholder="Buscar por nombre, DNI, correo o teléfono" aria-label="Buscar solicitudes">
+            <select id="request-filter" aria-label="Filtrar solicitudes por cotización">
+              <option value="">Todas las solicitudes</option><option value="pending">Por cotizar</option><option value="quoted">Cotizadas</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Nombre</th><th>DNI</th><th>Correo</th><th>Teléfono</th><th>Fecha y horario solicitado</th><th>Ensayo y logística</th><th>Observación</th><th>Acción</th></tr></thead>
+            <tbody id="requests-body"></tbody>
+          </table>
+        </div>
+        <div class="table-foot" id="request-foot"></div>
+      </div>
+
+      <div class="table-panel quotes-panel">
+        <div class="table-top">
+          <div class="card-heading">
+            <div><h2>Cotizaciones</h2><p>Propuestas preparadas para los próximos eventos.</p></div>
+            <span class="required-note" id="quote-count"></span>
+          </div>
+          <div class="toolbar">
+            <input type="search" id="quote-search" placeholder="Buscar por código, cliente o fecha" aria-label="Buscar cotizaciones">
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table">
+            <thead><tr><th>Código</th><th>Cliente</th><th>Fecha del evento</th><th>Horario</th><th>Monto</th><th>Fecha de creación</th><th>Acción</th></tr></thead>
+            <tbody id="quotes-body"></tbody>
+          </table>
+        </div>
+        <div class="table-foot" id="quote-foot"></div>
+      </div>
+    </section>
+
+  </main>
+  <dialog class="quote-dialog" id="quote-dialog" aria-labelledby="modal-title">
+    <form id="quote-form">
+      <h2 id="modal-title">Cotización</h2>
+      <p class="modal-intro" id="modal-intro">Completa la propuesta para el cliente.</p>
+      <div class="readonly-grid" id="quote-client-info"></div>
+      <p class="notice-tag quote-conflict" id="quote-conflict" hidden>Esta fecha ya tiene una reserva u otra solicitud en el horario indicado. Verifica la disponibilidad antes de enviar la cotización.</p>
+      <div class="quote-form" id="quote-edit-fields">
+        <div class="field">
+          <label for="quote-hourly-rate">Precio por hora (S/) <span class="required">*</span></label>
+          <input id="quote-hourly-rate" type="number" min="0.01" step="0.01" value="450" required>
+        </div>
+        <div class="field">
+          <label for="quote-validity">Validez de la oferta <span class="required">*</span></label>
+          <select id="quote-validity" required><option value="7">7 días</option><option value="15">15 días</option><option value="30">30 días</option></select>
+        </div>
+        <fieldset class="quote-addons wide">
+          <legend>Servicios adicionales por hora</legend>
+          <p class="help-text">Selecciona los servicios y sus horas. Ninguno puede superar la duración del evento.</p>
+          <div class="quote-addon-row">
+            <label class="checkbox-row" for="quote-addon-parking"><input id="quote-addon-parking" type="checkbox"><span>Cochera · S/ 10 por auto/h · máx. 30</span></label>
+            <div class="quote-addon-controls">
+              <div class="quote-addon-times"><select id="quote-addon-parking-start" aria-label="Desde qué hora cochera" disabled></select><select id="quote-addon-parking-end" aria-label="Hasta qué hora cochera" disabled></select></div>
+              <input id="quote-addon-parking-quantity" type="number" min="1" max="30" step="1" value="1" aria-label="Cantidad de autos" disabled>
+            </div>
+          </div>
+          <div class="quote-addon-row">
+            <label class="checkbox-row" for="quote-addon-led-54"><input id="quote-addon-led-54" type="checkbox"><span>Pantalla LED 5×4 · S/ 200 por hora</span></label>
+            <div class="quote-addon-times"><select id="quote-addon-led-54-start" aria-label="Desde qué hora pantalla LED 5 por 4" disabled></select><select id="quote-addon-led-54-end" aria-label="Hasta qué hora pantalla LED 5 por 4" disabled></select></div>
+          </div>
+          <div class="quote-addon-row">
+            <label class="checkbox-row" for="quote-addon-led-43"><input id="quote-addon-led-43" type="checkbox"><span>Pantalla LED 4×3 · S/ 150 por hora</span></label>
+            <div class="quote-addon-times"><select id="quote-addon-led-43-start" aria-label="Desde qué hora pantalla LED 4 por 3" disabled></select><select id="quote-addon-led-43-end" aria-label="Hasta qué hora pantalla LED 4 por 3" disabled></select></div>
+          </div>
+          <div class="quote-addon-row">
+            <label class="checkbox-row" for="quote-addon-microphones"><input id="quote-addon-microphones" type="checkbox"><span>Micrófonos · S/ 5 por unidad/hora</span></label>
+            <div class="quote-addon-controls">
+            <div class="quote-addon-times"><select id="quote-addon-microphones-start" aria-label="Desde qué hora micrófonos" disabled></select><select id="quote-addon-microphones-end" aria-label="Hasta qué hora micrófonos" disabled></select></div>
+              <input id="quote-addon-microphones-quantity" type="number" min="1" step="1" value="1" aria-label="Cantidad de micrófonos" disabled>
+            </div>
+          </div>
+          <div class="quote-addon-row">
+            <label class="checkbox-row" for="quote-addon-teleprompter"><input id="quote-addon-teleprompter" type="checkbox"><span>Teleprompter · S/ 10 por hora</span></label>
+            <div class="quote-addon-times"><select id="quote-addon-teleprompter-start" aria-label="Desde qué hora teleprompter" disabled></select><select id="quote-addon-teleprompter-end" aria-label="Hasta qué hora teleprompter" disabled></select></div>
+          </div>
+        </fieldset>
+        <section class="quote-price-summary wide" aria-label="Desglose de la cotización">
+          <div><span>Duración del evento</span><strong id="quote-duration"></strong></div>
+          <div><span>Alquiler del espacio</span><strong id="quote-space-subtotal"></strong></div>
+          <div><span>Servicios adicionales</span><strong id="quote-addons-subtotal"></strong></div>
+          <div><span>Subtotal</span><strong id="quote-subtotal"></strong></div>
+          <div><span>IGV (18 %)</span><strong id="quote-tax"></strong></div>
+          <div class="quote-grand-total"><span>Total final</span><strong id="quote-total"></strong></div>
+          <p>El total incluye el IGV calculado sobre el subtotal.</p>
+        </section>
+        <div class="field wide">
+          <label for="quote-services">Detalle de servicios <span class="required">*</span></label>
+          <textarea id="quote-services" required></textarea>
+        </div>
+        <div class="field wide">
+          <label for="quote-notes">Notas</label>
+          <textarea id="quote-notes" placeholder="Añade condiciones o información adicional."></textarea>
+        </div>
+      </div>
+      <div class="quote-readonly" id="quote-readonly-details" hidden></div>
+      <p class="form-error" id="quote-error" role="status" aria-live="polite"></p>
+      <div class="modal-actions">
+        <button class="button secondary" id="cancel-quote" type="button">Cancelar</button>
+        <button class="button" id="save-quote" type="submit">Guardar y enviar cotización</button>
+      </div>
+        <p class="form-footnote" id="quote-footnote">Al guardar, podrás elegir el medio de envío de la cotización.</p>
+    </form>
+  </dialog>
+  <dialog class="quote-dialog send-dialog" id="quote-send-dialog" aria-labelledby="send-dialog-title">
+    <form id="quote-send-form">
+      <h2 id="send-dialog-title">Enviar cotización</h2>
+      <p class="modal-intro">Elige el medio para compartir el PDF. El envío es una simulación del prototipo; no se enviarán mensajes reales.</p>
+      <fieldset class="send-options" id="send-options">
+        <legend>Medio de envío</legend>
+        <label><input type="radio" name="send-channel" value="email" checked> Correo electrónico <span id="send-email-recipient"></span></label>
+        <label><input type="radio" name="send-channel" value="whatsapp"> WhatsApp <span id="send-phone-recipient"></span></label>
+        <label><input type="radio" name="send-channel" value="both"> Correo y WhatsApp</label>
+        <p class="form-error" id="send-error" role="status" aria-live="polite"></p>
+        <div class="modal-actions">
+          <button class="button secondary" id="cancel-send" type="button">Cancelar</button>
+          <button class="button" type="submit">Confirmar envío</button>
+        </div>
+      </fieldset>
+      <section class="send-confirmation" id="send-confirmation" hidden aria-live="polite">
+        <p class="send-success">La cotización quedó guardada y marcada como enviada.</p>
+        <p id="send-confirmation-message"></p>
+        <p class="help-text">Este mensaje es solo una confirmación de demostración; no se realizó ningún envío real.</p>
+        <div class="modal-actions">
+          <button class="button secondary" id="close-send" type="button">Cerrar</button>
+          <button class="button" id="send-view-pdf" type="button">Ver PDF</button>
+        </div>
+      </section>
+    </form>
+  </dialog>
+  <footer class="site-footer"><span>SHOWTECH SOLUTIONS</span><span>Gestión de espacios para eventos</span></footer>
+  <script src="alquiler-app.js"></script>
+</body>
+</html>
