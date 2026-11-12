@@ -16,6 +16,29 @@
     { key: "microphones", label: "Micrófonos", rate: 5 },
     { key: "teleprompter", label: "Teleprompter", rate: 10 }
   ];
+  // Textos fijos del PDF de la cotización, tomados de la cotización real de la empresa. Se editan aquí.
+  const QUOTE_CITY = "Lince";
+  const QUOTE_INCLUDES = [
+    "Local con 737 butacas, 1 podio, 3 mesas plegables color negro, 20 sillas de plástico, 2 mesas de melamina (negro) en hall para recepción, vestuario y 4 baños para damas y caballeros cada uno",
+    "Consola de sonido BERINGER X32 PRODUCER",
+    "10 parlantes JBL",
+    "2 micrófonos inalámbricos de mano SHURE",
+    "1 persona de soporte audiovisual y 1 operador de luces de colores",
+    "Proyector VIVITEK 3000 LUMENS (incluye HDMI) + Ecram 5x4",
+    "Servicio de limpieza antes y después del evento",
+    "6 barras led PIXEL",
+    "12 parleds LUXON",
+    "04 cabezas móviles MINI HOT BEAM",
+    "Sistema de aire acondicionado",
+    "03 estacionamientos gratis y 23 estacionamientos de pago a 5 soles la hora de uso"
+  ];
+  const QUOTE_PAYMENT_TERMS = [
+    "Adelanto del 50 % o la totalidad para garantizar la reserva de la fecha del evento.",
+    "El resto será abonado una semana antes del evento (horario de atención: lunes a viernes de 9 a. m. a 5 p. m.)."
+  ];
+  // PENDIENTE de configurar con la empresa: cuentas bancarias, p. ej. [{ entidad, titular, tipo, cuenta, cci }], y quién firma, p. ej. "Nombre — Gerente general".
+  const QUOTE_BANK_ACCOUNTS = [];
+  const QUOTE_SIGNATURE = "";
   // Importe de un servicio adicional (sin IGV): precio fijo por evento, o tarifa por hora × unidades que se cobran.
   function addonCost(item, hours, quantity) {
     if (item.flat) return item.rate;
@@ -923,6 +946,11 @@
         context.fillStyle = ink;
         context.font = "600 18px Arial";
         context.fillText(money(row.amount), 1155, y + 24);
+        if (structuredPricing) {
+          context.fillStyle = muted;
+          context.font = "14px Arial";
+          context.fillText("+ IGV", 1155, y + 46);
+        }
         context.textAlign = "left";
         y += 70;
       });
@@ -930,10 +958,10 @@
       if (structuredPricing) {
         ensureSpace(180);
         y += 12;
-        [["Subtotal", quote.subtotal], ["IGV (18 %)", quote.tax]].forEach(([label, amount]) => {
+        [["Costo total sin IGV", quote.subtotal], ["IGV (18 %)", quote.tax]].forEach(([label, amount]) => {
           context.fillStyle = muted;
           context.font = "17px Arial";
-          context.fillText(label, 780, y);
+          context.fillText(label, 740, y);
           context.textAlign = "right";
           context.fillStyle = ink;
           context.fillText(money(amount), 1155, y);
@@ -965,12 +993,33 @@
       }
 
       if (quote.services && structuredPricing) {
-        section("Servicios incluidos");
+        section("Detalle de servicios");
         context.fillStyle = ink;
         context.font = "17px Arial";
         wrappedText(quote.services, 80, pageWidth - 160, 27);
         y += 8;
       }
+      function bulletList(items) {
+        items.forEach(item => {
+          ensureSpace(84);
+          context.fillStyle = ink;
+          context.font = "16px Arial";
+          context.fillText("•", 84, y);
+          wrappedText(item, 106, pageWidth - 190, 24);
+          y += 3;
+        });
+        y += 12;
+      }
+
+      section("Incluye para el auditorio");
+      bulletList(QUOTE_INCLUDES);
+      section("Forma de pago");
+      bulletList(QUOTE_PAYMENT_TERMS);
+      if (QUOTE_BANK_ACCOUNTS.length) {
+        section("Cuenta bancaria");
+        bulletList(QUOTE_BANK_ACCOUNTS.map(account => [account.entidad, account.titular && `Titular: ${account.titular}`, account.tipo, account.cuenta && `Nro. de cuenta: ${account.cuenta}`, account.cci && `CCI: ${account.cci}`].filter(Boolean).join(" · ")));
+      }
+
       ensureSpace(55);
       context.fillStyle = muted;
       context.font = "16px Arial";
@@ -981,6 +1030,23 @@
         context.fillStyle = ink;
         context.font = "16px Arial";
         wrappedText(quote.notes, 80, pageWidth - 160, 25);
+      }
+
+      ensureSpace(QUOTE_SIGNATURE ? 220 : 90);
+      y += 26;
+      context.fillStyle = ink;
+      context.font = "17px Arial";
+      context.textAlign = "right";
+      context.fillText(`${QUOTE_CITY}, ${formatDate(quote.createdAt, { day: "numeric", month: "long", year: "numeric" })}`, pageWidth - 64, y);
+      context.textAlign = "left";
+      y += 28;
+      if (QUOTE_SIGNATURE) {
+        y += 70;
+        context.fillStyle = "#9aa6b5";
+        context.fillRect(80, y, 330, 1);
+        context.fillStyle = ink;
+        context.font = "16px Arial";
+        context.fillText(QUOTE_SIGNATURE, 80, y + 26);
       }
 
       pages.forEach((page, index) => {
