@@ -1,0 +1,28 @@
+name: CI
+
+# Corre las pruebas del prototipo en cada push y en cada pull request.
+on:
+  push:
+  pull_request:
+
+jobs:
+  pruebas:
+    name: Pruebas del prototipo (Playwright + Chrome)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Los runners de GitHub ya traen Google Chrome; la configuración usa channel: 'chrome' y no descarga navegadores.
+      - run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: informe-playwright
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7

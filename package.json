@@ -1,0 +1,12 @@
+{
+  "name": "gestor-eventos-cotizacion",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Prototipo web de solicitud y cotización del alquiler de un espacio para eventos (SHOWTECH SOLUTIONS).",
+  "scripts": {
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0"
+  }
+}
