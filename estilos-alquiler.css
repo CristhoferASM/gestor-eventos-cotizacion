@@ -40,13 +40,18 @@ body { margin: 0; min-width: 320px; background: var(--canvas); color: var(--ink)
 button, input, select, textarea { font: inherit; }
 a { color: inherit; }
 
+/* La cabecera y el pie se alinean con el contenido: usan el mismo ancho máximo que la página (cliente 1400 px, administrador 1500 px). */
+body { --ancho-pagina: 1100px; --margen-pagina: 16px; }
+body:has(.booking-page) { --ancho-pagina: 1400px; }
+body:has(.admin-page) { --ancho-pagina: 1500px; }
+
 .site-header {
   min-height: 60px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 12px max(24px, calc((100% - 1100px) / 2));
+  padding: 12px max(var(--margen-pagina), calc((100% - var(--ancho-pagina)) / 2 + var(--margen-pagina)));
   background: var(--primario);
   color: var(--blanco);
 }
@@ -189,7 +194,7 @@ h1 { margin-bottom: 4px; color: var(--navy); font-size: 22px; font-weight: 700; 
   justify-content: space-between;
   gap: 16px;
   margin-top: 16px;
-  padding: 16px max(24px, calc((100% - 1100px) / 2));
+  padding: 16px max(var(--margen-pagina), calc((100% - var(--ancho-pagina)) / 2 + var(--margen-pagina)));
   background: var(--primario);
   color: var(--blanco);
   font-size: 12px;
@@ -545,7 +550,7 @@ h1 { margin-bottom: 4px; color: var(--navy); font-size: 22px; font-weight: 700; 
 .client-addon-list { display: grid; gap: 5px; }
 .client-addon-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(190px, 210px);
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 310px);
   align-items: center;
   gap: 8px;
   min-height: 39px;

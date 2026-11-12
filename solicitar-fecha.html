@@ -107,10 +107,10 @@
           <p class="help-text">Elige lo que necesitas. Puedes seleccionar menos horas que las del evento; los extras se incluyen en tu cotización.</p>
           <div class="client-addon-list">
             <div class="client-addon-row">
-              <label class="checkbox-row" for="request-addon-parking"><input id="request-addon-parking" type="checkbox"><span>Cochera <small>S/ 10 por auto/h · máx. 30</small></span></label>
+              <label class="checkbox-row" for="request-addon-parking"><input id="request-addon-parking" type="checkbox"><span>Cochera <small>3 gratis · S/ 5 por auto/h · máx. 26</small></span></label>
               <div class="client-addon-controls">
                 <div class="client-addon-times"><select id="request-addon-parking-start" aria-label="Desde qué hora cochera" disabled></select><select id="request-addon-parking-end" aria-label="Hasta qué hora cochera" disabled></select></div>
-                <input id="request-addon-parking-quantity" type="number" min="1" max="30" step="1" value="1" aria-label="Cantidad de autos" disabled>
+                <input id="request-addon-parking-quantity" type="number" min="1" max="26" step="1" value="1" aria-label="Cantidad de autos" disabled>
               </div>
             </div>
             <div class="client-addon-row">
@@ -118,7 +118,7 @@
               <div class="client-addon-times"><select id="request-addon-led-54-start" aria-label="Desde qué hora pantalla LED 5 por 4" disabled></select><select id="request-addon-led-54-end" aria-label="Hasta qué hora pantalla LED 5 por 4" disabled></select></div>
             </div>
             <div class="client-addon-row">
-              <label class="checkbox-row" for="request-addon-led-43"><input id="request-addon-led-43" type="checkbox"><span>Pantalla LED 4×3 <small>S/ 150/h</small></span></label>
+              <label class="checkbox-row" for="request-addon-led-43"><input id="request-addon-led-43" type="checkbox"><span>Pantalla LED 4×3 <small>S/ 200 · incluye estructura y procesador</small></span></label>
               <div class="client-addon-times"><select id="request-addon-led-43-start" aria-label="Desde qué hora pantalla LED 4 por 3" disabled></select><select id="request-addon-led-43-end" aria-label="Hasta qué hora pantalla LED 4 por 3" disabled></select></div>
             </div>
             <div class="client-addon-row client-addon-microphones">
@@ -186,7 +186,7 @@
           <textarea id="comments" name="observaciones" placeholder="Cuéntanos si tienes algún requerimiento especial."></textarea>
         </div>
         <button class="button form-submit" id="submit-request" type="submit" disabled>Solicitar cotización</button>
-        <p class="form-footnote" id="form-message" role="status" aria-live="polite">Completa fecha, horario, nombre, correo y teléfono para habilitar el envío.</p>
+        <p class="form-footnote" id="form-message" role="status" aria-live="polite">Completa fecha, horario, nombre, correo, teléfono y DNI (8 dígitos) para habilitar el envío.</p>
       </section>
     </form>
   </main>

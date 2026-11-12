@@ -1,19 +1,27 @@
 (() => {
   "use strict";
 
-  const STORAGE_KEY = "alquiler-espacios-demo-v1";
+  const STORAGE_KEY = "alquiler-espacios-demo-v2";
   const openingHour = 9;
   const closingHour = 22;
   const weekdays = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"];
   const longMonths = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
   const paymentClass = { "Pagado": "paid", "Pago incompleto": "partial", "Sin pagos": "unpaid" };
   const ADDON_CATALOG = [
-    { key: "parking", label: "Cochera", rate: 10, quantityLimit: 30 },
+    // Cochera: 26 lugares, los 3 primeros gratis y el resto S/ 5 por auto y hora (cotización real de la empresa).
+    { key: "parking", label: "Cochera", rate: 5, quantityLimit: 26, freeQuantity: 3 },
     { key: "led54", label: "Pantalla LED 5×4", rate: 200 },
-    { key: "led43", label: "Pantalla LED 4×3", rate: 150 },
+    // Pantalla LED 4×3: S/ 200 por evento, incluye estructura y procesador (cotización real de la empresa).
+    { key: "led43", label: "Pantalla LED 4×3", rate: 200, flat: true },
     { key: "microphones", label: "Micrófonos", rate: 5 },
     { key: "teleprompter", label: "Teleprompter", rate: 10 }
   ];
+  // Importe de un servicio adicional (sin IGV): precio fijo por evento, o tarifa por hora × unidades que se cobran.
+  function addonCost(item, hours, quantity) {
+    if (item.flat) return item.rate;
+    const billable = Math.max(0, quantity - (item.freeQuantity || 0));
+    return item.rate * hours * billable;
+  }
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const pad = value => String(value).padStart(2, "0");
@@ -39,7 +47,19 @@
   const money = value => `S/ ${Number(value).toLocaleString("es-PE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   const hoursBetween = (start, end) => Number(end.slice(0, 2)) - Number(start.slice(0, 2));
   const addHours = (time, count) => `${pad(Number(time.slice(0, 2)) + count)}:00`;
+  // Los datos de ejemplo se desplazan para que siempre caigan en los próximos días (no en fechas ya vencidas).
+  const daysBetween = (from, to) => Math.round((parseISO(to) - parseISO(from)) / 86400000);
+  function shiftDates(value, days) {
+    if (typeof value === "string") return /^\d{4}-\d{2}-\d{2}$/.test(value) ? addDays(value, days) : value;
+    if (Array.isArray(value)) return value.map(item => shiftDates(item, days));
+    if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([key, item]) => [key, shiftDates(item, days)]));
+    return value;
+  }
   function sampleData() {
+    // La fecha de ejemplo más temprana (4 oct. 2026) pasa a ser 3 días después de hoy.
+    return shiftDates(rawSampleData(), daysBetween("2026-10-04", toISO(today)) + 3);
+  }
+  function rawSampleData() {
     return {
       requests: [
         { id: "REQ-101", name: "Mariana Salazar", dni: "12345678", email: "mariana.salazar@correo.pe", phone: "987 654 321", date: "2026-10-22", start: "14:00", end: "18:00", addons: [{ key: "parking", start: "14:00", end: "18:00", hours: 4, quantity: 2 }, { key: "led54", start: "14:00", end: "18:00", hours: 4, quantity: 1 }, { key: "microphones", start: "14:00", end: "16:00", hours: 2, quantity: 2 }], rehearsal: false, rehearsalDate: "", rehearsalStart: "", rehearsalEnd: "", setupDate: "2026-10-22", setupStart: "12:00", setupEnd: "14:00", teardownDate: "2026-10-22", teardownStart: "18:00", teardownEnd: "19:00", notes: "Montaje desde una hora antes.", status: "Nueva", createdAt: "2026-10-10" },
@@ -451,7 +471,7 @@
       });
       const total = selected.reduce((sum, addon) => {
         const item = ADDON_CATALOG.find(entry => entry.key === addon.key);
-        return sum + item.rate * addon.hours * addon.quantity;
+        return sum + addonCost(item, addon.hours, addon.quantity);
       }, 0);
       document.getElementById("summary-addons").textContent = summary.join(", ") || "Ninguno";
       document.getElementById("summary-addons-total").textContent = money(total);
@@ -1027,7 +1047,7 @@
           end,
           hours: addonHours,
           quantity,
-          amount: Math.round((item.rate * addonHours * quantity + Number.EPSILON) * 100) / 100
+          amount: Math.round((addonCost(item, addonHours, quantity) + Number.EPSILON) * 100) / 100
         }];
       });
       const addonsSubtotal = addons.reduce((sum, item) => sum + item.amount, 0);
@@ -1197,7 +1217,7 @@
         return `<tr>
           <td class="main-cell">${escapeHTML(item.name)}</td><td>${escapeHTML(item.dni || "—")}</td><td>${escapeHTML(item.email)}</td><td>${escapeHTML(item.phone)}</td>
           <td>${escapeHTML(formatShortDate(item.date))}<span class="sub-cell">${escapeHTML(item.start)} a ${escapeHTML(item.end)}</span></td>
-          <td>${logistics.length ? `<span class="sub-cell">+${logistics.length}</span>` : "—"}</td>
+          <td>${logistics.length ? logistics.map(line => `<span class="sub-cell">${escapeHTML(line)}</span>`).join("") : "—"}</td>
           <td>${escapeHTML(item.notes || "—")}</td>
           <td>${quote
             ? `<button class="button small" type="button" data-view-quote="${escapeHTML(quote.id)}">Ver cotización</button>`
@@ -1258,7 +1278,7 @@
         const start = addon.start || customer.start;
         const end = addon.end || addHours(customer.start, addon.hours || 0);
         const hours = addon.hours || (start && end ? hoursBetween(start, end) : 0);
-        return `${item.label}: ${quantity}${start}–${end} · ${money(item.rate * hours * addon.quantity)}`;
+        return `${item.label}: ${quantity}${start}–${end} · ${money(addonCost(item, hours, addon.quantity))}`;
       }).filter(Boolean);
       document.getElementById("quote-client-info").innerHTML = `
         <div class="readonly-item"><span>Cliente</span><strong>${escapeHTML(customer.client || customer.name)}</strong></div>
@@ -1272,7 +1292,7 @@
         <div class="readonly-item wide"><span>Extras solicitados por el cliente</span><strong>${escapeHTML(requestedAddonsSummary.join(" · ") || "Ninguno")}</strong></div>
         <div class="readonly-item wide"><span>Montaje y desmontaje</span><strong>${escapeHTML(logistics.filter(item => !item.startsWith("Ensayo:")).join(" · ") || "No solicitados")}</strong></div>`;
       const existingHourlyRate = quote?.hourlyRate ??
-        (quote?.subtotal && quote?.hours ? quote.subtotal / quote.hours : 450);
+        (quote?.subtotal && quote?.hours ? quote.subtotal / quote.hours : 100);
       document.getElementById("quote-hourly-rate").value = existingHourlyRate;
       configureQuoteAddons(customer, quote);
       document.getElementById("quote-validity").value = String(quote?.validity || "7");
@@ -1323,7 +1343,7 @@
         !Number.isSafeInteger(addon.quantity) || addon.quantity < 1 ||
         addon.quantity > (ADDON_CATALOG.find(item => item.key === addon.key)?.quantityLimit || Number.MAX_SAFE_INTEGER)
       )) {
-        formError.textContent = "Revisa las horas y unidades de los servicios adicionales. La cochera permite hasta 30 autos.";
+        formError.textContent = "Revisa las horas y unidades de los servicios adicionales. La cochera permite hasta 26 autos.";
         return false;
       }
       const newQuote = {

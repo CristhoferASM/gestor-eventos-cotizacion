@@ -124,7 +124,7 @@
       <div class="quote-form" id="quote-edit-fields">
         <div class="field">
           <label for="quote-hourly-rate">Precio por hora (S/) <span class="required">*</span></label>
-          <input id="quote-hourly-rate" type="number" min="0.01" step="0.01" value="450" required>
+          <input id="quote-hourly-rate" type="number" min="0.01" step="0.01" value="100" required>
         </div>
         <div class="field">
           <label for="quote-validity">Validez de la oferta <span class="required">*</span></label>
@@ -134,10 +134,10 @@
           <legend>Servicios adicionales por hora</legend>
           <p class="help-text">Selecciona los servicios y sus horas. Ninguno puede superar la duración del evento.</p>
           <div class="quote-addon-row">
-            <label class="checkbox-row" for="quote-addon-parking"><input id="quote-addon-parking" type="checkbox"><span>Cochera · S/ 10 por auto/h · máx. 30</span></label>
+            <label class="checkbox-row" for="quote-addon-parking"><input id="quote-addon-parking" type="checkbox"><span>Cochera · 3 gratis · S/ 5 por auto/h · máx. 26</span></label>
             <div class="quote-addon-controls">
               <div class="quote-addon-times"><select id="quote-addon-parking-start" aria-label="Desde qué hora cochera" disabled></select><select id="quote-addon-parking-end" aria-label="Hasta qué hora cochera" disabled></select></div>
-              <input id="quote-addon-parking-quantity" type="number" min="1" max="30" step="1" value="1" aria-label="Cantidad de autos" disabled>
+              <input id="quote-addon-parking-quantity" type="number" min="1" max="26" step="1" value="1" aria-label="Cantidad de autos" disabled>
             </div>
           </div>
           <div class="quote-addon-row">
@@ -145,7 +145,7 @@
             <div class="quote-addon-times"><select id="quote-addon-led-54-start" aria-label="Desde qué hora pantalla LED 5 por 4" disabled></select><select id="quote-addon-led-54-end" aria-label="Hasta qué hora pantalla LED 5 por 4" disabled></select></div>
           </div>
           <div class="quote-addon-row">
-            <label class="checkbox-row" for="quote-addon-led-43"><input id="quote-addon-led-43" type="checkbox"><span>Pantalla LED 4×3 · S/ 150 por hora</span></label>
+            <label class="checkbox-row" for="quote-addon-led-43"><input id="quote-addon-led-43" type="checkbox"><span>Pantalla LED 4×3 · S/ 200 (incluye estructura y procesador)</span></label>
             <div class="quote-addon-times"><select id="quote-addon-led-43-start" aria-label="Desde qué hora pantalla LED 4 por 3" disabled></select><select id="quote-addon-led-43-end" aria-label="Hasta qué hora pantalla LED 4 por 3" disabled></select></div>
           </div>
           <div class="quote-addon-row">
