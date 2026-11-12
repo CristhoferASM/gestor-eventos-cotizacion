@@ -84,9 +84,10 @@
   function loadData() {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved) {
-      const initial = sampleData();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
-      return initial;
+      // Se guardan los datos de ejemplo y se leen por el mismo camino que en las demás cargas, para que las cotizaciones
+      // de ejemplo también traigan el ensayo, montaje y desmontaje de su solicitud desde la primera vez.
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sampleData()));
+      return loadData();
     }
     try {
       const parsed = JSON.parse(saved);
@@ -826,40 +827,68 @@
         }
       }
 
-      function labelValue(label, value, x, valueX, width) {
-        context.fillStyle = muted;
-        context.font = "16px Arial";
-        context.fillText(label, x, y);
-        context.fillStyle = ink;
-        context.font = "600 18px Arial";
-        wrappedText(value || "—", valueX, width, 26);
+      // Cuenta cuántas líneas ocupará un texto con el mismo ajuste de línea que wrappedText.
+      function countLines(text, maxWidth, font) {
+        context.font = font;
+        let lines = 0;
+        let line = "";
+        for (const word of String(text || "—").split(/\s+/)) {
+          const candidate = line ? `${line} ${word}` : word;
+          if (line && context.measureText(candidate).width > maxWidth) {
+            lines += 1;
+            line = word;
+          } else {
+            line = candidate;
+          }
+        }
+        return lines + (line ? 1 : 0);
+      }
+
+      // Recuadro gris con filas de dos columnas. Cada fila arranca a la misma altura en ambas columnas y el recuadro
+      // se ajusta al contenido (antes tenía alto fijo y el texto largo se salía).
+      function infoPanel(rows) {
+        const valueFont = "600 18px Arial";
+        const columns = { left: { label: 88, value: 230, width: 370 }, right: { label: 640, value: 830, width: 320 } };
+        const heights = rows.map(row => 26 * Math.max(countLines(row[1], columns.left.width, valueFont), countLines(row[3], columns.right.width, valueFont)) + 10);
+        const total = heights.reduce((sum, height) => sum + height, 0) + 22;
+        ensureSpace(total + 12);
+        const top = y - 12;
+        context.fillStyle = "#f5f7fa";
+        context.fillRect(64, top, pageWidth - 128, total);
+        y = top + 32;
+        rows.forEach(([leftLabel, leftValue, rightLabel, rightValue], index) => {
+          const rowY = y;
+          [[leftLabel, leftValue, columns.left], [rightLabel, rightValue, columns.right]].forEach(([label, value, column]) => {
+            y = rowY;
+            context.fillStyle = muted;
+            context.font = "16px Arial";
+            context.fillText(label, column.label, rowY);
+            context.fillStyle = ink;
+            context.font = valueFont;
+            wrappedText(value || "—", column.value, column.width, 26);
+          });
+          y = rowY + heights[index];
+        });
+        y = top + total + 24;
       }
 
       newPage();
       section("Datos del cliente");
-      const clientY = y;
-      context.fillStyle = "#f5f7fa";
-      context.fillRect(64, clientY - 12, pageWidth - 128, 138);
-      y = clientY + 18;
-      labelValue("Cliente", quote.client, 88, 230, 370);
-      labelValue("DNI", quote.dni || "No registrado", 680, 770, 350);
-      labelValue("Correo", quote.email, 88, 230, 370);
-      labelValue("Teléfono", quote.phone, 680, 770, 350);
-      y = clientY + 148;
+      infoPanel([
+        ["Cliente", quote.client, "DNI", quote.dni || "No registrado"],
+        ["Correo", quote.email, "Teléfono", quote.phone]
+      ]);
 
       section("Evento y programación");
-      context.fillStyle = "#f5f7fa";
-      context.fillRect(64, y - 12, pageWidth - 128, 116);
-      y += 18;
-      labelValue("Fecha", formatDate(quote.date), 88, 230, 370);
-      labelValue("Horario", `${quote.start} a ${quote.end} (${quote.hours || hoursBetween(quote.start, quote.end)} horas)`, 680, 770, 350);
-      labelValue("Ensayo", quote.rehearsal && quote.rehearsalDate
-        ? `${formatShortDate(quote.rehearsalDate)} · ${quote.rehearsalStart} a ${quote.rehearsalEnd}` : "No solicitado", 88, 230, 370);
-      labelValue("Montaje / desmontaje", [
-        quote.setupDate ? `Montaje ${formatShortDate(quote.setupDate)} ${quote.setupStart}–${quote.setupEnd}` : "",
-        quote.teardownDate ? `Desmontaje ${formatShortDate(quote.teardownDate)} ${quote.teardownStart}–${quote.teardownEnd}` : ""
-      ].filter(Boolean).join(" · ") || "No solicitado", 680, 770, 380);
-      y += 22;
+      infoPanel([
+        ["Fecha", formatDate(quote.date), "Horario", `${quote.start} a ${quote.end} (${quote.hours || hoursBetween(quote.start, quote.end)} horas)`],
+        ["Ensayo", quote.rehearsal && quote.rehearsalDate
+          ? `${formatShortDate(quote.rehearsalDate)} · ${quote.rehearsalStart} a ${quote.rehearsalEnd}` : "No solicitado",
+          "Montaje / desmontaje", [
+            quote.setupDate ? `Montaje ${formatShortDate(quote.setupDate)} ${quote.setupStart}–${quote.setupEnd}` : "",
+            quote.teardownDate ? `Desmontaje ${formatShortDate(quote.teardownDate)} ${quote.teardownStart}–${quote.teardownEnd}` : ""
+          ].filter(Boolean).join(" · ") || "No solicitado"]
+      ]);
 
       section("Detalle de la cotización");
       const structuredPricing = quote.spaceSubtotal != null && quote.subtotal != null && quote.tax != null;
@@ -1235,7 +1264,7 @@
       const quotes = data.quotes.filter(item =>
         `${item.quoteCode || ""} ${item.client} ${item.email} ${item.date}`.toLocaleLowerCase("es").includes(search)
       );
-      document.getElementById("quote-count").textContent = `${quotes.length} cotización${quotes.length === 1 ? "" : "es"}`;
+      document.getElementById("quote-count").textContent = `${quotes.length} ${quotes.length === 1 ? "cotización" : "cotizaciones"}`;
       document.getElementById("quote-foot").textContent = `Mostrando ${quotes.length} de ${data.quotes.length} cotizaciones.`;
       document.getElementById("quotes-body").innerHTML = quotes.map(item => `<tr>
         <td class="main-cell">${escapeHTML(item.quoteCode || "—")}</td>
