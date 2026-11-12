@@ -505,7 +505,8 @@
       document.getElementById("summary-date").textContent = selectedDate ? formatDate(selectedDate) : "Aún no seleccionada";
       document.getElementById("summary-time").textContent = startSelect.value && endSelect.value
         ? `${startSelect.value} a ${endSelect.value}` : "Aún no seleccionado";
-      const contactReady = ["full-name", "email", "phone", "dni"].every(id => document.getElementById(id).value.trim());
+      const contactReady = ["full-name", "email", "phone"].every(id => document.getElementById(id).value.trim())
+        && /^\d{8}$/.test(document.getElementById("dni").value.trim());
       document.getElementById("submit-request").disabled = !(selectedDate && startSelect.value && endSelect.value && contactReady);
     }
 
@@ -650,6 +651,21 @@
       document.getElementById(item.start).addEventListener("change", () => updateLogisticsEndTimes(item));
     });
     ["full-name", "email", "phone", "dni"].forEach(id => document.getElementById(id).addEventListener("input", updateSummary));
+    const dniInput = document.getElementById("dni");
+    const dniError = document.getElementById("dni-error");
+    function showDniError() {
+      const digits = dniInput.value.trim().length;
+      const invalid = digits > 0 && digits !== 8;
+      dniError.hidden = !invalid;
+      dniError.textContent = invalid ? `El DNI debe tener exactamente 8 dígitos (llevas ${digits}).` : "";
+      dniInput.setAttribute("aria-invalid", String(invalid));
+    }
+    dniInput.addEventListener("input", () => {
+      dniInput.value = dniInput.value.replace(/\D/g, "").slice(0, 8);
+      if (!dniError.hidden) showDniError();
+    });
+    dniInput.addEventListener("blur", showDniError);
+    form.addEventListener("reset", () => { dniError.hidden = true; dniInput.removeAttribute("aria-invalid"); });
     form.addEventListener("submit", event => {
       event.preventDefault();
       const error = document.getElementById("form-message");
@@ -1292,13 +1308,30 @@
       if (viewButton) viewButton.addEventListener("click", () => openQuoteModal(null, "view", viewButton.dataset.openQuote));
     }
 
+    // Estado visible de una solicitud: descartada, cotizada (si ya tiene cotización) o el estado guardado.
+    function requestStatus(request, quote) {
+      if (request.status === "Descartada") return "Descartada";
+      if (quote) return "Cotizada";
+      return request.status || "Nueva";
+    }
+
+    const statusBadgeClass = {
+      "Nueva": "nueva", "En revisión": "revision", "Cotizada": "ok", "Descartada": "gris",
+      "En proceso": "revision", "Esperando respuesta": "revision", "Aceptada": "ok",
+      "Pagado": "ok", "Pago incompleto": "revision", "Sin pagos": "pendiente"
+    };
+    function statusBadge(label) {
+      return `<span class="badge-estado ${statusBadgeClass[label] || "gris"}">${escapeHTML(label)}</span>`;
+    }
+
     function renderRequests() {
       const search = document.getElementById("request-search").value.trim().toLocaleLowerCase("es");
       const filter = document.getElementById("request-filter").value;
       const requests = data.requests.filter(item => {
         const matchesSearch = `${item.name} ${item.dni || ""} ${item.email} ${item.phone} ${item.date}`.toLocaleLowerCase("es").includes(search);
         const quoted = data.quotes.some(quote => quote.requestId === item.id);
-        return matchesSearch && (!filter || (filter === "quoted" ? quoted : !quoted));
+        const discarded = item.status === "Descartada";
+        return matchesSearch && (!filter || (filter === "quoted" ? quoted : filter === "discarded" ? discarded : !quoted && !discarded));
       });
       document.getElementById("request-count").textContent = `${requests.length} solicitud${requests.length === 1 ? "" : "es"}`;
       document.getElementById("request-foot").textContent = `Mostrando ${requests.length} de ${data.requests.length} solicitudes.`;
@@ -1314,15 +1347,39 @@
           <td>${escapeHTML(formatShortDate(item.date))}<span class="sub-cell">${escapeHTML(item.start)} a ${escapeHTML(item.end)}</span></td>
           <td>${logistics.length ? logistics.map(line => `<span class="sub-cell">${escapeHTML(line)}</span>`).join("") : "—"}</td>
           <td>${escapeHTML(item.notes || "—")}</td>
-          <td>${quote
-            ? `<button class="button small" type="button" data-view-quote="${escapeHTML(quote.id)}">Ver cotización</button>`
-            : `<button class="button small" type="button" data-create-quote="${escapeHTML(item.id)}">Crear cotización</button>`}</td>
+          <td>${statusBadge(requestStatus(item, quote))}</td>
+          <td><div class="action-list">${item.status === "Descartada"
+            ? `<button class="button small secondary" type="button" data-reactivate-request="${escapeHTML(item.id)}">Reactivar</button>`
+            : quote
+              ? `<button class="button small" type="button" data-view-quote="${escapeHTML(quote.id)}">Ver cotización</button>`
+              : `<button class="button small" type="button" data-create-quote="${escapeHTML(item.id)}">Crear cotización</button><button class="button small secondary" type="button" data-discard-request="${escapeHTML(item.id)}">Descartar</button>`}</div></td>
         </tr>`;
-      }).join("") || '<tr><td class="empty-row" colspan="8">No hay solicitudes que coincidan con la búsqueda.</td></tr>';
+      }).join("") || '<tr><td class="empty-row" colspan="9">No hay solicitudes que coincidan con la búsqueda.</td></tr>';
       document.querySelectorAll("[data-create-quote]").forEach(button => {
         button.addEventListener("click", () => openQuoteModal(button.dataset.createQuote, "create"));
       });
       document.querySelectorAll("#requests-body [data-view-quote]").forEach(button => button.addEventListener("click", () => openQuoteModal(null, "view", button.dataset.viewQuote)));
+      document.querySelectorAll("[data-discard-request]").forEach(button => button.addEventListener("click", () => {
+        const request = data.requests.find(item => item.id === button.dataset.discardRequest);
+        if (!request) return;
+        if (!window.confirm(`¿Descartar la solicitud de ${request.name}? Su horario quedará libre en el calendario. Podrás reactivarla después.`)) return;
+        request.status = "Descartada";
+        saveData();
+        renderRequests();
+        renderCalendar();
+      }));
+      document.querySelectorAll("[data-reactivate-request]").forEach(button => button.addEventListener("click", () => {
+        const request = data.requests.find(item => item.id === button.dataset.reactivateRequest);
+        if (!request) return;
+        if (hasScheduleConflict(request)) {
+          window.alert("No se puede reactivar: el horario de esta solicitud ya fue ocupado por otro registro.");
+          return;
+        }
+        request.status = "Nueva";
+        saveData();
+        renderRequests();
+        renderCalendar();
+      }));
     }
 
     function renderQuotes() {
@@ -1337,8 +1394,10 @@
         <td class="main-cell">${escapeHTML(item.client)}<span class="sub-cell">${escapeHTML(item.email)}</span></td>
         <td>${escapeHTML(formatShortDate(item.date))}</td><td>${escapeHTML(item.start)} a ${escapeHTML(item.end)}</td><td>${money(item.amount)}</td>
         <td>${escapeHTML(formatShortDate(item.createdAt))}</td>
+        <td>${statusBadge(item.status || "En proceso")}</td>
+        <td>${statusBadge(item.paymentStatus || "Sin pagos")}</td>
         <td><button class="button small" type="button" data-view-quote="${escapeHTML(item.id)}">Ver PDF</button></td>
-      </tr>`).join("") || '<tr><td class="empty-row" colspan="7">No hay cotizaciones que coincidan con la búsqueda.</td></tr>';
+      </tr>`).join("") || '<tr><td class="empty-row" colspan="9">No hay cotizaciones que coincidan con la búsqueda.</td></tr>';
       document.querySelectorAll("#quotes-body [data-view-quote]").forEach(button => button.addEventListener("click", () => openQuoteModal(null, "view", button.dataset.viewQuote)));
     }
 
@@ -1391,7 +1450,7 @@
       document.getElementById("quote-hourly-rate").value = existingHourlyRate;
       configureQuoteAddons(customer, quote);
       document.getElementById("quote-validity").value = String(quote?.validity || "7");
-      document.getElementById("quote-services").value = quote?.services || "";
+      document.getElementById("quote-services").value = quote?.services || (request ? `Alquiler del auditorio por ${hoursBetween(request.start, request.end)} horas.` : "");
       document.getElementById("quote-notes").value = quote?.notes || "";
       document.getElementById("quote-error").textContent = "";
       document.getElementById("quote-conflict").hidden = isReadOnly || !hasScheduleConflict(customer);

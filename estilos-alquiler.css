@@ -133,6 +133,14 @@ h1 { margin-bottom: 4px; color: var(--navy); font-size: 22px; font-weight: 700; 
   color: var(--ink);
   font-size: 13px;
 }
+.field-error { margin: 6px 0 0; color: #a32626; font-size: 11px; font-weight: 600; }
+.field input[aria-invalid="true"] { border-color: #a32626; }
+.badge-estado { display: inline-block; padding: 3px 9px; border-radius: 12px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+.badge-estado.nueva { background: #e6eefb; color: #1f4e9c; }
+.badge-estado.revision { background: var(--amber-pale); color: var(--amber); }
+.badge-estado.ok { background: var(--green-pale); color: var(--green); }
+.badge-estado.gris { background: #eceff3; color: #4a5563; }
+.badge-estado.pendiente { background: #fde8e8; color: #a32626; }
 .field textarea { min-height: 91px; resize: vertical; line-height: 1.5; }
 .field input:focus, .field select:focus, .field textarea:focus, .toolbar input:focus, .toolbar select:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(73, 107, 145, .12); }
 .field input::placeholder, .field textarea::placeholder, .toolbar input::placeholder { color: #a0a8b2; }

@@ -81,13 +81,13 @@
           <div class="toolbar">
             <input type="search" id="request-search" placeholder="Buscar por nombre, DNI, correo o teléfono" aria-label="Buscar solicitudes">
             <select id="request-filter" aria-label="Filtrar solicitudes por cotización">
-              <option value="">Todas las solicitudes</option><option value="pending">Por cotizar</option><option value="quoted">Cotizadas</option>
+              <option value="">Todas las solicitudes</option><option value="pending">Por cotizar</option><option value="quoted">Cotizadas</option><option value="discarded">Descartadas</option>
             </select>
           </div>
         </div>
         <div class="table-scroll">
           <table class="data-table">
-            <thead><tr><th>Nombre</th><th>DNI</th><th>Correo</th><th>Teléfono</th><th>Fecha y horario solicitado</th><th>Ensayo y logística</th><th>Observación</th><th>Acción</th></tr></thead>
+            <thead><tr><th>Nombre</th><th>DNI</th><th>Correo</th><th>Teléfono</th><th>Fecha y horario solicitado</th><th>Ensayo y logística</th><th>Observación</th><th>Estado</th><th>Acción</th></tr></thead>
             <tbody id="requests-body"></tbody>
           </table>
         </div>
@@ -106,7 +106,7 @@
         </div>
         <div class="table-scroll">
           <table class="data-table">
-            <thead><tr><th>Código</th><th>Cliente</th><th>Fecha del evento</th><th>Horario</th><th>Monto</th><th>Fecha de creación</th><th>Acción</th></tr></thead>
+            <thead><tr><th>Código</th><th>Cliente</th><th>Fecha del evento</th><th>Horario</th><th>Monto</th><th>Fecha de creación</th><th>Estado</th><th>Pago</th><th>Acción</th></tr></thead>
             <tbody id="quotes-body"></tbody>
           </table>
         </div>
