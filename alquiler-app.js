@@ -1125,7 +1125,7 @@
             cells += `<td class="${day.getMonth() === monthCursor.getMonth() ? "" : "outside"}" data-date="${date}">
               <span class="date-number">${day.getDate()}</span>
               ${records.slice(0, 2).map(item => `<button class="event-chip ${paymentClass[item.paymentStatus] || "unpaid"}" type="button" data-record-id="${escapeHTML(item.id)}" data-record-kind="${item.kind}" data-segment="${escapeHTML(item.segment)}">${escapeHTML(item.displayStart)}–${escapeHTML(item.displayEnd)} · ${escapeHTML(item.segment)} · ${escapeHTML(item.name)}</button>`).join("")}
-              ${records.length > 2 ? `<span class="sub-cell">+${records.length - 2} eventos</span>` : ""}
+              ${records.length > 2 ? `<span class="sub-cell">+${records.length - 2} ${records.length - 2 === 1 ? "evento" : "eventos"}</span>` : ""}
             </td>`;
           }
           cells += "</tr>";
@@ -1504,7 +1504,11 @@
         if (calendarMode === "month") {
           monthCursor = new Date(monthCursor.getFullYear(), monthCursor.getMonth(), 1);
         } else {
-          monthCursor.setDate(monthCursor.getDate() - ((monthCursor.getDay() + 6) % 7));
+          // La semana que se abre es la actual si se mira el mes en curso; en otro mes, la primera semana de ese mes.
+          const base = monthCursor.getFullYear() === today.getFullYear() && monthCursor.getMonth() === today.getMonth()
+            ? new Date(today) : new Date(monthCursor);
+          base.setDate(base.getDate() - ((base.getDay() + 6) % 7));
+          monthCursor = base;
         }
         document.querySelectorAll("[data-calendar-view]").forEach(item => item.classList.toggle("active", item === button));
         renderCalendar();

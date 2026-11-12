@@ -36,7 +36,8 @@
 }
 
 * { box-sizing: border-box; }
-body { margin: 0; min-width: 320px; background: var(--canvas); color: var(--ink); }
+/* Pie pegado al borde inferior aunque la página sea corta: el contenido ocupa el espacio sobrante. */
+body { margin: 0; min-width: 320px; min-height: 100vh; display: flex; flex-direction: column; background: var(--canvas); color: var(--ink); }
 button, input, select, textarea { font: inherit; }
 a { color: inherit; }
 
@@ -65,7 +66,7 @@ body:has(.admin-page) { --ancho-pagina: 1500px; }
 .login-button { min-height: 34px; padding: 8px 14px; background: var(--primario-2); color: var(--blanco); text-decoration: none; }
 .login-button:hover { background: var(--blue-dark); }
 
-.page { max-width: 1100px; margin: 24px auto 0; padding: 0 16px 36px; }
+.page { width: 100%; flex: 1 0 auto; max-width: 1100px; margin: 24px auto 0; padding: 0 16px 36px; }
 .booking-page { max-width: 1400px; }
 .admin-page { max-width: 1500px; }
 .page-heading { margin-bottom: 27px; }
@@ -233,6 +234,7 @@ h1 { margin-bottom: 4px; color: var(--navy); font-size: 22px; font-weight: 700; 
 .month-table td.outside { background: #f8f9fa; color: #b5bdc7; }
 .date-number { display: block; margin-bottom: 5px; color: var(--ink); font-size: 11px; }
 .outside .date-number { color: #b5bdc7; }
+#admin-calendar-view .sub-cell { display: block; margin-top: 3px; color: var(--muted); font-size: 10px; font-weight: 600; }
 .event-chip { display: block; margin-top: 3px; padding: 4px 5px; border-radius: 4px; font-size: 9px; line-height: 1.35; }
 .event-chip.paid, .key-swatch.paid { background: var(--green-pale); color: var(--green); }
 .event-chip.partial, .key-swatch.partial { background: var(--amber-pale); color: var(--amber); }
