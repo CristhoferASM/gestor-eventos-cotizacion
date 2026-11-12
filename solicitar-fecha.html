@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Solicita tu fecha | Alquiler de espacios</title>
+  <link rel="stylesheet" href="vendor/flatpickr/flatpickr.min.css">
   <link rel="stylesheet" href="estilos-alquiler.css">
 </head>
 <body>
@@ -89,61 +90,79 @@
             <input id="phone" name="telefono" type="tel" placeholder="Ej. 987 654 321" required>
           </div>
           <div class="field">
-            <label for="dni">DNI peruano <span class="required">*</span></label>
+            <label for="dni">DNI <span class="required">*</span></label>
             <input id="dni" name="dni" type="text" inputmode="numeric" autocomplete="off" placeholder="8 dígitos" pattern="[0-9]{8}" minlength="8" maxlength="8" title="Ingresa los 8 dígitos de tu DNI peruano." required>
             <p class="field-error" id="dni-error" role="alert" hidden></p>
           </div>
         </div>
 
-        <div class="summary-box" aria-live="polite">
-          <h3>Resumen de tu solicitud</h3>
-          <div class="summary-row"><span>Fecha seleccionada:</span><strong id="summary-date">Aún no seleccionada</strong></div>
-          <div class="summary-row"><span>Horario:</span><strong id="summary-time">Aún no seleccionado</strong></div>
-          <div class="summary-row"><span>Extras seleccionados:</span><strong id="summary-addons">Ninguno</strong></div>
-          <div class="summary-row"><span>Subtotal de extras:</span><strong id="summary-addons-total">S/ 0.00</strong></div>
-        </div>
-
         <fieldset class="client-addons">
           <legend>Servicios adicionales opcionales</legend>
-          <p class="help-text">Elige lo que necesitas. Puedes seleccionar menos horas que las del evento; los extras se incluyen en tu cotización.</p>
+          <p class="help-text">Marca lo que necesitas: las horas se completan solas con las del evento y puedes ajustarlas.</p>
           <div class="client-addon-list">
-            <div class="client-addon-row">
-              <label class="checkbox-row" for="request-addon-parking"><input id="request-addon-parking" type="checkbox"><span>Cochera <small>3 gratis · S/ 5 por auto/h · máx. 26</small></span></label>
-              <div class="client-addon-controls">
-                <div class="client-addon-times"><select id="request-addon-parking-start" aria-label="Desde qué hora cochera" disabled></select><select id="request-addon-parking-end" aria-label="Hasta qué hora cochera" disabled></select></div>
-                <input id="request-addon-parking-quantity" type="number" min="1" max="26" step="1" value="1" aria-label="Cantidad de autos" disabled>
-              </div>
-            </div>
-            <div class="client-addon-row">
-              <label class="checkbox-row" for="request-addon-led-54"><input id="request-addon-led-54" type="checkbox"><span>Pantalla LED 5×4 <small>S/ 200/h</small></span></label>
-              <div class="client-addon-times"><select id="request-addon-led-54-start" aria-label="Desde qué hora pantalla LED 5 por 4" disabled></select><select id="request-addon-led-54-end" aria-label="Hasta qué hora pantalla LED 5 por 4" disabled></select></div>
-            </div>
-            <div class="client-addon-row">
-              <label class="checkbox-row" for="request-addon-led-43"><input id="request-addon-led-43" type="checkbox"><span>Pantalla LED 4×3 <small>S/ 200 · incluye estructura y procesador</small></span></label>
-              <div class="client-addon-times"><select id="request-addon-led-43-start" aria-label="Desde qué hora pantalla LED 4 por 3" disabled></select><select id="request-addon-led-43-end" aria-label="Hasta qué hora pantalla LED 4 por 3" disabled></select></div>
-            </div>
-            <div class="client-addon-row client-addon-microphones">
-              <label class="checkbox-row" for="request-addon-microphones"><input id="request-addon-microphones" type="checkbox"><span>Micrófonos <small>S/ 5/unidad/h</small></span></label>
-              <div class="client-addon-controls">
-                <div class="client-addon-times"><select id="request-addon-microphones-start" aria-label="Desde qué hora micrófonos" disabled></select><select id="request-addon-microphones-end" aria-label="Hasta qué hora micrófonos" disabled></select></div>
-                <input id="request-addon-microphones-quantity" type="number" min="1" step="1" value="1" aria-label="Cantidad de micrófonos" disabled>
-              </div>
-            </div>
-            <div class="client-addon-row">
-              <label class="checkbox-row" for="request-addon-teleprompter"><input id="request-addon-teleprompter" type="checkbox"><span>Teleprompter <small>S/ 10/h</small></span></label>
-              <div class="client-addon-times"><select id="request-addon-teleprompter-start" aria-label="Desde qué hora teleprompter" disabled></select><select id="request-addon-teleprompter-end" aria-label="Hasta qué hora teleprompter" disabled></select></div>
-            </div>
+        <div class="client-addon-row addon-card">
+          <div class="addon-cabecera">
+            <label class="checkbox-row" for="request-addon-parking"><input id="request-addon-parking" type="checkbox"><span class="addon-nombre">Cochera <small>3 gratis · S/ 5 por auto/h · máx. 26</small></span></label>
+            <strong class="addon-subtotal" id="request-addon-parking-subtotal" aria-live="polite"></strong>
+          </div>
+          <div class="client-addon-controls">
+            <div class="campo-mini"><span class="mini-etiqueta">Desde</span><select id="request-addon-parking-start" aria-label="Desde qué hora cochera" disabled></select></div>
+            <div class="campo-mini"><span class="mini-etiqueta">Hasta</span><select id="request-addon-parking-end" aria-label="Hasta qué hora cochera" disabled></select></div>
+          <div class="campo-mini"><span class="mini-etiqueta">Autos</span><input id="request-addon-parking-quantity" type="number" min="1" max="26" step="1" value="1" aria-label="Cantidad de autos" disabled></div>
+          </div>
+        </div>
+        <div class="client-addon-row addon-card">
+          <div class="addon-cabecera">
+            <label class="checkbox-row" for="request-addon-led-54"><input id="request-addon-led-54" type="checkbox"><span class="addon-nombre">Pantalla LED 5×4 <small>S/ 200 por hora</small></span></label>
+            <strong class="addon-subtotal" id="request-addon-led-54-subtotal" aria-live="polite"></strong>
+          </div>
+          <div class="client-addon-controls">
+            <div class="campo-mini"><span class="mini-etiqueta">Desde</span><select id="request-addon-led-54-start" aria-label="Desde qué hora pantalla LED 5 por 4" disabled></select></div>
+            <div class="campo-mini"><span class="mini-etiqueta">Hasta</span><select id="request-addon-led-54-end" aria-label="Hasta qué hora pantalla LED 5 por 4" disabled></select></div>
+          </div>
+        </div>
+        <div class="client-addon-row addon-card">
+          <div class="addon-cabecera">
+            <label class="checkbox-row" for="request-addon-led-43"><input id="request-addon-led-43" type="checkbox"><span class="addon-nombre">Pantalla LED 4×3 <small>S/ 200 fijo · incluye estructura y procesador</small></span></label>
+            <strong class="addon-subtotal" id="request-addon-led-43-subtotal" aria-live="polite"></strong>
+          </div>
+          <div class="client-addon-controls">
+            <div class="campo-mini"><span class="mini-etiqueta">Desde</span><select id="request-addon-led-43-start" aria-label="Desde qué hora pantalla LED 4 por 3" disabled></select></div>
+            <div class="campo-mini"><span class="mini-etiqueta">Hasta</span><select id="request-addon-led-43-end" aria-label="Hasta qué hora pantalla LED 4 por 3" disabled></select></div>
+          </div>
+        </div>
+        <div class="client-addon-row addon-card">
+          <div class="addon-cabecera">
+            <label class="checkbox-row" for="request-addon-microphones"><input id="request-addon-microphones" type="checkbox"><span class="addon-nombre">Micrófonos <small>S/ 5 por unidad y hora</small></span></label>
+            <strong class="addon-subtotal" id="request-addon-microphones-subtotal" aria-live="polite"></strong>
+          </div>
+          <div class="client-addon-controls">
+            <div class="campo-mini"><span class="mini-etiqueta">Desde</span><select id="request-addon-microphones-start" aria-label="Desde qué hora micrófonos" disabled></select></div>
+            <div class="campo-mini"><span class="mini-etiqueta">Hasta</span><select id="request-addon-microphones-end" aria-label="Hasta qué hora micrófonos" disabled></select></div>
+          <div class="campo-mini"><span class="mini-etiqueta">Unidades</span><input id="request-addon-microphones-quantity" type="number" min="1" step="1" value="1" aria-label="Cantidad de micrófonos" disabled></div>
+          </div>
+        </div>
+        <div class="client-addon-row addon-card">
+          <div class="addon-cabecera">
+            <label class="checkbox-row" for="request-addon-teleprompter"><input id="request-addon-teleprompter" type="checkbox"><span class="addon-nombre">Teleprompter <small>S/ 10 por hora</small></span></label>
+            <strong class="addon-subtotal" id="request-addon-teleprompter-subtotal" aria-live="polite"></strong>
+          </div>
+          <div class="client-addon-controls">
+            <div class="campo-mini"><span class="mini-etiqueta">Desde</span><select id="request-addon-teleprompter-start" aria-label="Desde qué hora teleprompter" disabled></select></div>
+            <div class="campo-mini"><span class="mini-etiqueta">Hasta</span><select id="request-addon-teleprompter-end" aria-label="Hasta qué hora teleprompter" disabled></select></div>
+          </div>
+        </div>
           </div>
         </fieldset>
 
         <section class="logistics-fields" aria-label="Logística del evento">
           <h3>Logística y horarios adicionales</h3>
           <p class="help-text">Estos datos ayudan a preparar una cotización precisa. Son opcionales.</p>
-          <div class="logistics-group">
-            <label class="checkbox-row" for="rehearsal">
-              <input id="rehearsal" name="ensayo" type="checkbox">
-              <span>Programar ensayo</span>
-            </label>
+          <div class="logistics-group caja-logistica">
+            <div class="caja-cabecera">
+              <label class="checkbox-row" for="rehearsal"><input id="rehearsal" name="ensayo" type="checkbox"><span>Programar ensayo</span></label>
+              <span class="etiqueta-tecnica etiqueta-ensayo">Ensayo previo</span>
+            </div>
             <div class="form-fields logistics-details" id="rehearsal-fields" hidden>
               <div class="field"><label for="rehearsal-date">Fecha</label><input id="rehearsal-date" type="date"></div>
               <div class="slot-fields">
@@ -152,11 +171,11 @@
               </div>
             </div>
           </div>
-          <div class="logistics-group">
-            <label class="checkbox-row" for="needs-setup">
-              <input id="needs-setup" name="needs-setup" type="checkbox">
-              <span>Necesito montaje</span>
-            </label>
+          <div class="logistics-group caja-logistica">
+            <div class="caja-cabecera">
+              <label class="checkbox-row" for="needs-setup"><input id="needs-setup" name="needs-setup" type="checkbox"><span>Necesito montaje</span></label>
+              <span class="etiqueta-tecnica etiqueta-montaje">Montaje</span>
+            </div>
             <div class="form-fields logistics-details" id="setup-fields" hidden>
               <div class="field"><label for="setup-date">Fecha</label><input id="setup-date" type="date"></div>
               <div class="slot-fields">
@@ -166,11 +185,11 @@
               <p class="help-text">Puedes programarlo desde un día antes y debe terminar antes del evento.</p>
             </div>
           </div>
-          <div class="logistics-group">
-            <label class="checkbox-row" for="needs-teardown">
-              <input id="needs-teardown" name="needs-teardown" type="checkbox">
-              <span>Necesito desmontaje</span>
-            </label>
+          <div class="logistics-group caja-logistica">
+            <div class="caja-cabecera">
+              <label class="checkbox-row" for="needs-teardown"><input id="needs-teardown" name="needs-teardown" type="checkbox"><span>Necesito desmontaje</span></label>
+              <span class="etiqueta-tecnica etiqueta-desmontaje">Desmontaje</span>
+            </div>
             <div class="form-fields logistics-details" id="teardown-fields" hidden>
               <div class="field"><label for="teardown-date">Fecha</label><input id="teardown-date" type="date"></div>
               <div class="slot-fields">
@@ -180,11 +199,19 @@
               <p class="help-text">El desmontaje debe finalizar dentro de las 24 horas posteriores al evento.</p>
             </div>
           </div>
+          <p class="logistics-summary" id="logistics-summary" aria-live="polite" hidden></p>
         </section>
 
         <div class="field" style="margin-top: 16px">
           <label for="comments">Observaciones o comentarios adicionales <span class="required-note">(opcional)</span></label>
           <textarea id="comments" name="observaciones" placeholder="Cuéntanos si tienes algún requerimiento especial."></textarea>
+        </div>
+        <div class="summary-box" aria-live="polite">
+          <h3>Resumen de tu solicitud</h3>
+          <div class="summary-row"><span>Fecha seleccionada:</span><strong id="summary-date">Aún no seleccionada</strong></div>
+          <div class="summary-row"><span>Horario:</span><strong id="summary-time">Aún no seleccionado</strong></div>
+          <div class="summary-row"><span>Extras seleccionados:</span><strong id="summary-addons">Ninguno</strong></div>
+          <div class="summary-row"><span>Subtotal de extras:</span><strong id="summary-addons-total">S/ 0.00</strong></div>
         </div>
         <button class="button form-submit" id="submit-request" type="submit" disabled>Solicitar cotización</button>
         <p class="form-footnote" id="form-message" role="status" aria-live="polite">Completa fecha, horario, nombre, correo, teléfono y DNI (8 dígitos) para habilitar el envío.</p>
@@ -201,7 +228,8 @@
     </div>
   </dialog>
   <footer class="site-footer"><span>SHOWTECH SOLUTIONS</span><span>Gestión de espacios para eventos</span></footer>
+  <script src="vendor/flatpickr/flatpickr.min.js"></script>
   <script src="alquiler-app.js"></script>
-  <script src="selector-hora.js"></script>
+  <script src="selectores-fecha-hora.js"></script>
 </body>
 </html>

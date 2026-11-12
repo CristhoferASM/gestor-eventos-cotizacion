@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Panel de administración | Alquiler de espacios</title>
+  <link rel="stylesheet" href="vendor/flatpickr/flatpickr.min.css">
   <link rel="stylesheet" href="estilos-alquiler.css">
 </head>
 <body>
@@ -135,33 +136,59 @@
         </div>
         <fieldset class="quote-addons wide">
           <legend>Servicios adicionales</legend>
-          <p class="help-text">Selecciona los servicios y sus horas. Ninguno puede superar la duración del evento.</p>
-          <div class="quote-addon-row">
-            <label class="checkbox-row" for="quote-addon-parking"><input id="quote-addon-parking" type="checkbox"><span>Cochera · 3 gratis · S/ 5 por auto/h · máx. 26</span></label>
-            <div class="quote-addon-controls">
-              <div class="quote-addon-times"><select id="quote-addon-parking-start" aria-label="Desde qué hora cochera" disabled></select><select id="quote-addon-parking-end" aria-label="Hasta qué hora cochera" disabled></select></div>
-              <input id="quote-addon-parking-quantity" type="number" min="1" max="26" step="1" value="1" aria-label="Cantidad de autos" disabled>
-            </div>
+          <p class="help-text">Marca los servicios y ajusta sus horas. Ninguno puede superar la duración del evento.</p>
+        <div class="quote-addon-row addon-card">
+          <div class="addon-cabecera">
+            <label class="checkbox-row" for="quote-addon-parking"><input id="quote-addon-parking" type="checkbox"><span class="addon-nombre">Cochera <small>3 gratis · S/ 5 por auto/h · máx. 26</small></span></label>
+            <strong class="addon-subtotal" id="quote-addon-parking-subtotal" aria-live="polite"></strong>
           </div>
-          <div class="quote-addon-row">
-            <label class="checkbox-row" for="quote-addon-led-54"><input id="quote-addon-led-54" type="checkbox"><span>Pantalla LED 5×4 · S/ 200 por hora</span></label>
-            <div class="quote-addon-times"><select id="quote-addon-led-54-start" aria-label="Desde qué hora pantalla LED 5 por 4" disabled></select><select id="quote-addon-led-54-end" aria-label="Hasta qué hora pantalla LED 5 por 4" disabled></select></div>
+          <div class="quote-addon-controls">
+            <div class="campo-mini"><span class="mini-etiqueta">Desde</span><select id="quote-addon-parking-start" aria-label="Desde qué hora cochera" disabled></select></div>
+            <div class="campo-mini"><span class="mini-etiqueta">Hasta</span><select id="quote-addon-parking-end" aria-label="Hasta qué hora cochera" disabled></select></div>
+          <div class="campo-mini"><span class="mini-etiqueta">Autos</span><input id="quote-addon-parking-quantity" type="number" min="1" max="26" step="1" value="1" aria-label="Cantidad de autos" disabled></div>
           </div>
-          <div class="quote-addon-row">
-            <label class="checkbox-row" for="quote-addon-led-43"><input id="quote-addon-led-43" type="checkbox"><span>Pantalla LED 4×3 · S/ 200 (incluye estructura y procesador)</span></label>
-            <div class="quote-addon-times"><select id="quote-addon-led-43-start" aria-label="Desde qué hora pantalla LED 4 por 3" disabled></select><select id="quote-addon-led-43-end" aria-label="Hasta qué hora pantalla LED 4 por 3" disabled></select></div>
+        </div>
+        <div class="quote-addon-row addon-card">
+          <div class="addon-cabecera">
+            <label class="checkbox-row" for="quote-addon-led-54"><input id="quote-addon-led-54" type="checkbox"><span class="addon-nombre">Pantalla LED 5×4 <small>S/ 200 por hora</small></span></label>
+            <strong class="addon-subtotal" id="quote-addon-led-54-subtotal" aria-live="polite"></strong>
           </div>
-          <div class="quote-addon-row">
-            <label class="checkbox-row" for="quote-addon-microphones"><input id="quote-addon-microphones" type="checkbox"><span>Micrófonos · S/ 5 por unidad/hora</span></label>
-            <div class="quote-addon-controls">
-            <div class="quote-addon-times"><select id="quote-addon-microphones-start" aria-label="Desde qué hora micrófonos" disabled></select><select id="quote-addon-microphones-end" aria-label="Hasta qué hora micrófonos" disabled></select></div>
-              <input id="quote-addon-microphones-quantity" type="number" min="1" step="1" value="1" aria-label="Cantidad de micrófonos" disabled>
-            </div>
+          <div class="quote-addon-controls">
+            <div class="campo-mini"><span class="mini-etiqueta">Desde</span><select id="quote-addon-led-54-start" aria-label="Desde qué hora pantalla LED 5 por 4" disabled></select></div>
+            <div class="campo-mini"><span class="mini-etiqueta">Hasta</span><select id="quote-addon-led-54-end" aria-label="Hasta qué hora pantalla LED 5 por 4" disabled></select></div>
           </div>
-          <div class="quote-addon-row">
-            <label class="checkbox-row" for="quote-addon-teleprompter"><input id="quote-addon-teleprompter" type="checkbox"><span>Teleprompter · S/ 10 por hora</span></label>
-            <div class="quote-addon-times"><select id="quote-addon-teleprompter-start" aria-label="Desde qué hora teleprompter" disabled></select><select id="quote-addon-teleprompter-end" aria-label="Hasta qué hora teleprompter" disabled></select></div>
+        </div>
+        <div class="quote-addon-row addon-card">
+          <div class="addon-cabecera">
+            <label class="checkbox-row" for="quote-addon-led-43"><input id="quote-addon-led-43" type="checkbox"><span class="addon-nombre">Pantalla LED 4×3 <small>S/ 200 fijo · incluye estructura y procesador</small></span></label>
+            <strong class="addon-subtotal" id="quote-addon-led-43-subtotal" aria-live="polite"></strong>
           </div>
+          <div class="quote-addon-controls">
+            <div class="campo-mini"><span class="mini-etiqueta">Desde</span><select id="quote-addon-led-43-start" aria-label="Desde qué hora pantalla LED 4 por 3" disabled></select></div>
+            <div class="campo-mini"><span class="mini-etiqueta">Hasta</span><select id="quote-addon-led-43-end" aria-label="Hasta qué hora pantalla LED 4 por 3" disabled></select></div>
+          </div>
+        </div>
+        <div class="quote-addon-row addon-card">
+          <div class="addon-cabecera">
+            <label class="checkbox-row" for="quote-addon-microphones"><input id="quote-addon-microphones" type="checkbox"><span class="addon-nombre">Micrófonos <small>S/ 5 por unidad y hora</small></span></label>
+            <strong class="addon-subtotal" id="quote-addon-microphones-subtotal" aria-live="polite"></strong>
+          </div>
+          <div class="quote-addon-controls">
+            <div class="campo-mini"><span class="mini-etiqueta">Desde</span><select id="quote-addon-microphones-start" aria-label="Desde qué hora micrófonos" disabled></select></div>
+            <div class="campo-mini"><span class="mini-etiqueta">Hasta</span><select id="quote-addon-microphones-end" aria-label="Hasta qué hora micrófonos" disabled></select></div>
+          <div class="campo-mini"><span class="mini-etiqueta">Unidades</span><input id="quote-addon-microphones-quantity" type="number" min="1" step="1" value="1" aria-label="Cantidad de micrófonos" disabled></div>
+          </div>
+        </div>
+        <div class="quote-addon-row addon-card">
+          <div class="addon-cabecera">
+            <label class="checkbox-row" for="quote-addon-teleprompter"><input id="quote-addon-teleprompter" type="checkbox"><span class="addon-nombre">Teleprompter <small>S/ 10 por hora</small></span></label>
+            <strong class="addon-subtotal" id="quote-addon-teleprompter-subtotal" aria-live="polite"></strong>
+          </div>
+          <div class="quote-addon-controls">
+            <div class="campo-mini"><span class="mini-etiqueta">Desde</span><select id="quote-addon-teleprompter-start" aria-label="Desde qué hora teleprompter" disabled></select></div>
+            <div class="campo-mini"><span class="mini-etiqueta">Hasta</span><select id="quote-addon-teleprompter-end" aria-label="Hasta qué hora teleprompter" disabled></select></div>
+          </div>
+        </div>
         </fieldset>
         <section class="quote-price-summary wide" aria-label="Desglose de la cotización">
           <div><span>Duración del evento</span><strong id="quote-duration"></strong></div>
@@ -217,7 +244,8 @@
     </form>
   </dialog>
   <footer class="site-footer"><span>SHOWTECH SOLUTIONS</span><span>Gestión de espacios para eventos</span></footer>
+  <script src="vendor/flatpickr/flatpickr.min.js"></script>
   <script src="alquiler-app.js"></script>
-  <script src="selector-hora.js"></script>
+  <script src="selectores-fecha-hora.js"></script>
 </body>
 </html>

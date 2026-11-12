@@ -486,6 +486,11 @@
 
     function updateRequestAddonSummary() {
       const selected = selectedRequestAddons();
+      requestAddons.forEach(item => {
+        const celda = document.getElementById(`${item.checkbox}-subtotal`);
+        const elegido = selected.find(addon => addon.key === item.key);
+        if (celda) celda.textContent = elegido ? money(addonCost(item, elegido.hours, elegido.quantity)) : "";
+      });
       const summary = selected.map(addon => {
         const item = ADDON_CATALOG.find(entry => entry.key === addon.key);
         const quantity = addon.key === "parking"
@@ -508,6 +513,23 @@
       const contactReady = ["full-name", "email", "phone"].every(id => document.getElementById(id).value.trim())
         && /^\d{8}$/.test(document.getElementById("dni").value.trim());
       document.getElementById("submit-request").disabled = !(selectedDate && startSelect.value && endSelect.value && contactReady);
+    }
+
+    // Resumen de las franjas técnicas elegidas: «Montaje: 12:00 a 14:00 (2 h)».
+    function updateLogisticsSummary() {
+      const resumen = document.getElementById("logistics-summary");
+      if (!resumen) return;
+      const nombres = { rehearsal: "Ensayo", setup: "Montaje", teardown: "Desmontaje" };
+      const lineas = logistics.map(item => {
+        if (!document.getElementById(item.checkbox).checked) return "";
+        const inicio = document.getElementById(item.start).value;
+        const fin = document.getElementById(item.end).value;
+        if (!inicio || !fin) return "";
+        const horas = hoursBetween(inicio, fin);
+        return `<strong>${nombres[item.key]}:</strong> ${inicio} a ${fin}${horas > 0 ? ` (${horas} h)` : ""}`;
+      }).filter(Boolean);
+      resumen.hidden = !lineas.length;
+      resumen.innerHTML = lineas.join("<br>");
     }
 
     function renderLogistics() {
@@ -651,6 +673,8 @@
       document.getElementById(item.start).addEventListener("change", () => updateLogisticsEndTimes(item));
     });
     ["full-name", "email", "phone", "dni"].forEach(id => document.getElementById(id).addEventListener("input", updateSummary));
+    form.addEventListener("change", updateLogisticsSummary);
+    form.addEventListener("reset", () => setTimeout(updateLogisticsSummary, 0));
     const dniInput = document.getElementById("dni");
     const dniError = document.getElementById("dni-error");
     function showDniError() {
@@ -1211,6 +1235,11 @@
       const request = data.requests.find(item => item.id === modalRequestId);
       if (!request) return;
       const pricing = quotePricing(request);
+      quoteAddons.forEach(item => {
+        const celda = document.getElementById(`${item.checkbox}-subtotal`);
+        const elegido = pricing.addons.find(addon => addon.key === item.key);
+        if (celda) celda.textContent = elegido ? money(elegido.amount) : "";
+      });
       document.getElementById("quote-duration").textContent = `${pricing.hours} hora${pricing.hours === 1 ? "" : "s"}`;
       document.getElementById("quote-space-subtotal").textContent = money(pricing.spaceSubtotal);
       document.getElementById("quote-addons-subtotal").textContent = money(pricing.addonsSubtotal);

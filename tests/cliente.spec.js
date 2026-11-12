@@ -11,6 +11,11 @@ test.describe('Pantalla del cliente', () => {
     await expect(fila).toContainText('Nueva');
   });
 
+  test('el campo se llama «DNI» (no «DNI peruano»)', async ({ page }) => {
+    await page.goto(CLIENTE);
+    await expect(page.locator('label[for="dni"]')).toHaveText(/^DNI\s*\*?$/);
+  });
+
   test('el DNI solo admite dígitos y muestra un mensaje si está incompleto', async ({ page }) => {
     await page.goto(CLIENTE);
     await elegirDiaLibre(page);

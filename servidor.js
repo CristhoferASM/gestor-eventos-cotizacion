@@ -13,14 +13,15 @@ const servidor = http.createServer((req, res) => {
     res.writeHead(302, { Location: '/solicitar-fecha.html' });
     return res.end();
   }
-  // Solo archivos sueltos de la raíz con extensión permitida (nada de subcarpetas, node_modules ni .git).
+  // Solo archivos sueltos de la raíz y los de vendor/flatpickr, con extensión permitida (nada de node_modules, tests ni .git).
   const nombre = path.basename(ruta);
   const tipo = TIPOS[path.extname(nombre)];
-  if (ruta !== '/' + nombre || !tipo) {
+  const permitida = ruta === '/' + nombre || ruta === '/vendor/flatpickr/' + nombre;
+  if (!permitida || !tipo) {
     res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
     return res.end('No encontrado');
   }
-  fs.readFile(path.join(__dirname, nombre), (error, contenido) => {
+  fs.readFile(path.join(__dirname, ruta.slice(1)), (error, contenido) => {
     if (error) {
       res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
       return res.end('No encontrado');

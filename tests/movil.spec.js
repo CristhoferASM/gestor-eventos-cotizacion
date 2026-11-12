@@ -1,20 +1,24 @@
 const { test, expect } = require('@playwright/test');
-const { CLIENTE, ADMIN } = require('./ayudas');
+const { CLIENTE, ADMIN, elegirDiaLibre, elegirHorario } = require('./ayudas');
 
 // Pantalla de teléfono con toque.
 test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
 
 test.describe('Móvil (390 px)', () => {
-  test('servicios adicionales: etiqueta arriba y selectores debajo, sin encimarse', async ({ page }) => {
+  test('servicios adicionales: al marcar uno, sus selectores aparecen debajo del nombre y se leen completos', async ({ page }) => {
     await page.goto(CLIENTE);
-    const filas = page.locator('.client-addon-row');
-    expect(await filas.count()).toBe(5);
+    await elegirDiaLibre(page);
+    await elegirHorario(page, '09:00', '14:00');
+    const tarjetas = page.locator('.client-addon-row');
+    expect(await tarjetas.count()).toBe(5);
     for (let i = 0; i < 5; i++) {
-      const fila = filas.nth(i);
-      const etiqueta = await fila.locator('.checkbox-row').boundingBox();
-      const selector = await fila.locator('.hora-trigger').first().boundingBox();
-      expect(selector.y).toBeGreaterThanOrEqual(etiqueta.y + etiqueta.height - 1); // el selector queda debajo
-      expect(selector.width).toBeGreaterThan(95); // se lee «Elige horario» completo (103 px con cantidad, 138 px sin ella)
+      const tarjeta = tarjetas.nth(i);
+      await tarjeta.locator('input[type="checkbox"]').check();
+      const cabecera = await tarjeta.locator('.addon-cabecera').boundingBox();
+      const selector = await tarjeta.locator('.selector-entrada').first().boundingBox();
+      expect(selector.y).toBeGreaterThanOrEqual(cabecera.y + cabecera.height - 1); // el selector queda debajo
+      expect(selector.width).toBeGreaterThan(95);
+      expect(selector.x + selector.width).toBeLessThanOrEqual(390); // no se sale de la pantalla
     }
   });
 

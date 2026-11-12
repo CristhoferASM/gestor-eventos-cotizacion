@@ -41,7 +41,8 @@ Las pruebas (carpeta `tests/`) abren los HTML directamente, sin servidor, y cubr
 - `solicitar-fecha.html` — pantalla del cliente
 - `panel-administracion.html` — panel del administrador
 - `alquiler-app.js` — lógica (disponibilidad, validaciones, cotización, PDF, calendario)
-- `selector-hora.js` — selector de hora (panel «Hora» con botón «Listo», como el del gestor de eventos); mejora las listas de hora sin cambiar la lógica
+- `selectores-fecha-hora.js` — selectores de hora y de fecha con Flatpickr, iguales a los del gestor de eventos (panel «Hora» y «Minutos» con botón «Listo»; calendario en español); mantienen sincronizados los campos originales sin cambiar la lógica
+- `vendor/flatpickr/` — copia de Flatpickr 4.6.13 (licencia MIT) para que funcione sin internet
 - `estilos-alquiler.css` — estilos
 - `tests/` y `playwright.config.js` — pruebas automáticas
 
